@@ -1,0 +1,23 @@
+services:
+  web:
+    build:
+      context: ./src
+    ports:
+      - '8000:8000'
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./sql_scripts/custom_schema.sql:/docker-entrypoint-initdb.d/custom_schema.sql
+    env_file:
+      - ./.env
+volumes:
+  postgres_data:

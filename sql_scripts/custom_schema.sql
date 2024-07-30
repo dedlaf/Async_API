@@ -1,2 +1,2 @@
 CREATE SCHEMA IF NOT EXISTS content;
-SET search_path TO my_schema;
+SET search_path TO content;

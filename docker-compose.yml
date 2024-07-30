@@ -19,5 +19,16 @@ services:
       - ./sql_scripts/custom_schema.sql:/docker-entrypoint-initdb.d/custom_schema.sql
     env_file:
       - ./.env
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - "discovery.type=single-node"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
 volumes:
   postgres_data:
+  esdata:

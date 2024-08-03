@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from src.models.mixin import TimeStampedMixin, UUIDMixin
+from models.mixin import TimeStampedMixin, UUIDMixin
 
 
 class Film(TimeStampedMixin, UUIDMixin):

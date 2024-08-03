@@ -1,4 +1,4 @@
-from src.models.mixin import TimeStampedMixin, UUIDMixin
+from models.mixin import TimeStampedMixin, UUIDMixin
 
 
 class Person(TimeStampedMixin, UUIDMixin):

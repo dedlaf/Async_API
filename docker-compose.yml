@@ -17,18 +17,28 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - ./sql_scripts/custom_schema.sql:/docker-entrypoint-initdb.d/custom_schema.sql
+      - ./sql_scripts/movies_database.ddl:/docker-entrypoint-initdb.d/movies_database.ddl
+
     env_file:
       - ./.env
+    ports:
+      - "5432:5432"
   elasticsearch:
     image: elasticsearch:8.8.0
     volumes:
       - esdata:/usr/share/elasticsearch/data
     environment:
       - "discovery.type=single-node"
+      - "xpack.security.enabled=false"
+
+    ports:
+      - "9200:9200"
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
+
+
 volumes:
   postgres_data:
   esdata:

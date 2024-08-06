@@ -9,4 +9,4 @@ class Film(TimeStampedMixin, UUIDMixin):
     description: Optional[str] = None
     creation_date: Optional[datetime] = None
     imdb_rating: Optional[float] = None
-    genres: list
+    genres: list[str]

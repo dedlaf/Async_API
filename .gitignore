@@ -1,6 +1,3 @@
 .env
 .idea/
 __pycache__/
-apw
-etl
-sql_scripts/movies_database.ddl

@@ -20,7 +20,7 @@ async def film_details(
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
     return Film(
-        id=str(film.id),
+        id=film.id,
         title=film.title,
         imdb_rating=film.imdb_rating,
         genres=film.genres,
@@ -53,7 +53,7 @@ async def film_details(
 
     final_data = [
         Film(
-            id=str(film.id),
+            id=film.id,
             title=film.title,
             imdb_rating=film.imdb_rating,
             genres=film.genres,

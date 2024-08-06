@@ -13,7 +13,6 @@ from models.person import Person
 PERSON_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
 
-# TODO: Доработать класс с учетом готового ETL пайплайна
 class PersonService:
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
         self.redis = redis
@@ -29,7 +28,7 @@ class PersonService:
 
         return person
 
-    async def get_list_of_persons(self, request: str, filters=None, query=None):
+    async def get_list_of_persons(self, request: str, filters: dict = None, query: str = None) -> Optional[list]:
         persons = await self._get_list_of_persons_from_cache(request=request)
 
         if not persons:
@@ -40,7 +39,7 @@ class PersonService:
                 return []
         return persons
 
-    async def _get_list_of_persons_from_cache(self, request: str):
+    async def _get_list_of_persons_from_cache(self, request: str) -> Optional[list]:
         try:
             data = await self.redis.lrange(request, 0, -1)
             persons = [person.parse_raw(person) for person in data]
@@ -51,7 +50,7 @@ class PersonService:
             return None
 
     async def _get_list_of_persons_from_elastic(
-        self, request: str, filters=None, query=None
+        self, request: str, filters: dict = None, query: str = None
     ):
         try:
 
@@ -71,7 +70,7 @@ class PersonService:
         except NotFoundError:
             return None
 
-    async def _person_from_cache(self, person_id):
+    async def _person_from_cache(self, person_id: str) -> Optional[Person]:
         data = await self.redis.get(person_id)
         if not data:
             return None
@@ -79,14 +78,14 @@ class PersonService:
         person = Person.parse_raw(data)
         return person
 
-    async def _get_person_from_elastic(self, person_id: str):
+    async def _get_person_from_elastic(self, person_id: str) -> Person:
         try:
-            doc = await self.elastic.get(index="movies", id=person_id)
+            doc = await self.elastic.get(index="persons", id=person_id)
         except NotFoundError:
             return None
         return Person(**doc["_source"])
 
-    async def _put_person_to_cache(self, person: Person):
+    async def _put_person_to_cache(self, person: Person) -> None:
 
         await self.redis.set(
             str(person.id), person.json(), PERSON_CACHE_EXPIRE_IN_SECONDS

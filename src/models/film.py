@@ -8,5 +8,5 @@ class Film(TimeStampedMixin, UUIDMixin):
     title: str
     description: Optional[str] = None
     creation_date: Optional[datetime] = None
-    rating: Optional[float] = None
-    type: str
+    imdb_rating: Optional[float] = None
+    genres: list[str]

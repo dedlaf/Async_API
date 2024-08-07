@@ -1,31 +1,74 @@
 from http import HTTPStatus
+from typing import List
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Request
 
+from models.film import Film
 from services.film import FilmService, get_film_service
 
 router = APIRouter()
+ignoring_request_args = ["page", "page_size"]
 
 
-class Film(BaseModel):
-    id: str
-    title: str
+def filter_query_string(url, ignoring_args):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    filtered_params = {k: v for k, v in query_params.items() if k not in ignoring_args}
+    filtered_query = urlencode(filtered_params, doseq=True)
+    filtered_url = urlunparse(parsed_url._replace(query=filtered_query))
+
+    return filtered_url
 
 
-# Внедряем FilmService с помощью Depends(get_film_service)
-@router.get('/{film_id}', response_model=Film)
-async def film_details(film_id: str, film_service: FilmService = Depends(get_film_service)) -> Film:
+@router.get("/{film_id}", response_model=Film)
+async def film_details(
+    film_id: str, film_service: FilmService = Depends(get_film_service)
+) -> Film:
     film = await film_service.get_by_id(film_id)
     if not film:
-        # Если фильм не найден, отдаём 404 статус
-        # Желательно пользоваться уже определёнными HTTP-статусами, которые содержат enum    # Такой код будет более поддерживаемым
-        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='film not found')
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
+    return Film(
+        id=film.id,
+        title=film.title,
+        imdb_rating=film.imdb_rating,
+        genres=film.genres,
+    )
 
-    # Перекладываем данные из models.Film в Film
-    # Обратите внимание, что у модели бизнес-логики есть поле description,
-    # которое отсутствует в модели ответа API.
-    # Если бы использовалась общая модель для бизнес-логики и формирования ответов API,
-    # вы бы предоставляли клиентам данные, которые им не нужны
-    # и, возможно, данные, которые опасно возвращать
-    return Film(id=film.id, title=film.title)
+
+@router.get("/", response_model=List[Film])
+@router.get("/search/{query}", response_model=List[Film])
+async def film_details(
+    request: Request,
+    page: int = 0,
+    page_size: int = 100,
+    sort: str = "imdb_rating",
+    filter: str = None,
+    query: str = None,
+    film_service: FilmService = Depends(get_film_service),
+) -> Film:
+    sort_by = {}
+    filters = {}
+    offset_min = page * page_size
+    offset_max = (page + 1) * page_size
+    request = filter_query_string(str(request.url), ignoring_request_args)
+    if filter:
+        filters["filter"] = filter
+    sort_by["sort"] = sort
+    films = await film_service.get_list(
+        sort=sort_by, filters=filters, query=query, request=request
+    )
+
+    if not films:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
+
+    final_data = [
+        Film(
+            id=film.id,
+            title=film.title,
+            imdb_rating=film.imdb_rating,
+            genres=film.genres,
+        )
+        for film in films
+    ]
+    return final_data[offset_min:offset_max]

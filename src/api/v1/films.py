@@ -4,12 +4,23 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
-
+from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 from models.film import Film
 from models.person import Person
 from services.film import FilmService, get_film_service
 
 router = APIRouter()
+ignoring_request_args = ["page", "page_size"]
+
+
+def filter_query_string(url, ignoring_args):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    filtered_params = {k: v for k, v in query_params.items() if k not in ignoring_args}
+    filtered_query = urlencode(filtered_params, doseq=True)
+    filtered_url = urlunparse(parsed_url._replace(query=filtered_query))
+
+    return filtered_url
 
 
 @router.get("/{film_id}", response_model=Film)
@@ -28,6 +39,7 @@ async def film_details(
 
 
 @router.get("/", response_model=List[Film])
+@router.get("/search/{query}", response_model=List[Film])
 async def film_details(
     request: Request,
     page: int = 0,
@@ -41,11 +53,12 @@ async def film_details(
     filters = {}
     offset_min = page * page_size
     offset_max = (page + 1) * page_size
+    request = filter_query_string(str(request.url), ignoring_request_args)
     if filter:
         filters["filter"] = filter
     sort_by["sort"] = sort
     films = await film_service.get_list_of_films(
-        sort=sort_by, filters=filters, query=query, request=str(request.url)
+        sort=sort_by, filters=filters, query=query, request=request
     )
 
     if not films:
@@ -61,18 +74,3 @@ async def film_details(
         for film in films
     ]
     return final_data[offset_min:offset_max]
-
-
-# TODO: Раскомментировать после готового ETL пайплайна для персоналий
-# TODO: Доделать url пути для персоналий
-# TODO: Написать функцию для списка персоналий
-"""
-
-@router.get('/persons/{person_id}', response_model=Person)
-async def film_details(person_id: str, person_service: PersonService = Depends(get_person_service)) -> Person:
-   person = await person_service.get_by_id(person_id)
-   if not person:
-       raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail='person not found')
-   return Person(id=str(person.id), title=person.full_name)
-   
-"""

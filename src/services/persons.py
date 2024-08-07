@@ -1,95 +1,64 @@
 import logging
 from functools import lru_cache
-from typing import Optional
+from typing import List, Optional, Type
 
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends, Request
 from redis.asyncio import Redis
-
+from pydantic import BaseModel
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.person import Person
-
+from .redis_service import RedisService
 PERSON_CACHE_EXPIRE_IN_SECONDS = 60 * 5
 
 
 class PersonService:
     def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = redis
+        self.redis = RedisService(redis)
         self.elastic = elastic
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:
-        person = await self._person_from_cache(person_id)
+        person = await self.redis.object_from_cache(object_id=person_id, key=Person)
         if not person:
             person = await self._get_person_from_elastic(person_id)
             if not person:
                 return None
-            await self._put_person_to_cache(person)
+            await self.redis.put_object_to_cache(object_id=str(person.id), key=person, expire=PERSON_CACHE_EXPIRE_IN_SECONDS)
 
         return person
 
-    async def get_list_of_persons(self, request: str, filters: dict = None, query: str = None) -> Optional[list]:
-        persons = await self._get_list_of_persons_from_cache(request=request)
-
+    async def get_list_of_persons(
+        self, request: str
+    ) -> Optional[List[Person]]:
+        persons = await self.redis.objects_from_cache(object_id=request, key=Person)
+        persons = sorted(persons, key=lambda x: x.full_name)
         if not persons:
-            persons = await self._get_list_of_persons_from_elastic(
-                filters=filters, request=request
-            )
+            persons = await self._get_list_of_persons_from_elastic(request=request)
             if not persons:
                 return []
         return persons
 
-    async def _get_list_of_persons_from_cache(self, request: str) -> Optional[list]:
-        try:
-            data = await self.redis.lrange(request, 0, -1)
-            persons = [person.parse_raw(person) for person in data]
-            return persons
-
-        except Exception as e:
-            print(f"Error fetching persons from Redis: {e}")
-            return None
-
     async def _get_list_of_persons_from_elastic(
-        self, request: str, filters: dict = None, query: str = None
-    ):
+        self, request: str
+    ) -> Optional[List[Person]]:
         try:
-
-            search_body = {"query": {"match_all": {}}, "size": 10000}
-
-            if query:
-                search_body["query"] = {"bool": {"must": []}}
-                search_body["query"]["bool"]["must"].append({"match": {"title": query}})
-
-            response = await self.elastic.search(index="movies", body=search_body)
-            # Извлекаем фильмы из результатов поиска
+            search_body = {"query": {"match_all": {}}, "size": 10000, "sort": [{"full_name.keyword": {"order": "asc"}}]}
+            response = await self.elastic.search(index="persons", body=search_body)
             persons = [Person(**doc["_source"]) for doc in response["hits"]["hits"]]
-            for i in persons:
-                await self.redis.lpush(request, i.json())
+            await self.redis.put_objects_to_cache(object_id=request, key=persons, expire=PERSON_CACHE_EXPIRE_IN_SECONDS)
             return persons
 
         except NotFoundError:
+            logging.error(f"404 Not Found")
             return None
 
-    async def _person_from_cache(self, person_id: str) -> Optional[Person]:
-        data = await self.redis.get(person_id)
-        if not data:
-            return None
-
-        person = Person.parse_raw(data)
-        return person
-
-    async def _get_person_from_elastic(self, person_id: str) -> Person:
+    async def _get_person_from_elastic(self, person_id: str) -> Optional[Person]:
         try:
             doc = await self.elastic.get(index="persons", id=person_id)
         except NotFoundError:
             return None
         return Person(**doc["_source"])
-
-    async def _put_person_to_cache(self, person: Person) -> None:
-
-        await self.redis.set(
-            str(person.id), person.json(), PERSON_CACHE_EXPIRE_IN_SECONDS
-        )
 
 
 @lru_cache()

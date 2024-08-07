@@ -25,9 +25,9 @@ if __name__ == "__main__":
 
     while True:
         try:
-            etl_process_handler.handle_process()
+            logging.info(etl_process_handler.handle_process())
         except Exception as e:
             logger.error(f"Ошибка: {e}")
             etl_process_handler = ETLProcessHandler(state)
         finally:
-            time.sleep(30)
+            time.sleep(20)

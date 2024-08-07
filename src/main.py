@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 
-from api.v1 import films
+from api.v1 import films, genres
 from core import config
 from db import elastic, redis
 
@@ -32,3 +32,4 @@ async def shutdown():
 # Подключаем роутер к серверу, указав префикс /v1/films
 # Теги указываем для удобства навигации по документации
 app.include_router(films.router, prefix="/api/v1/films", tags=["films"])
+app.include_router(genres.router, prefix="/api/v1/genres", tags=["genres"])

@@ -24,18 +24,23 @@ services:
   elasticsearch:
     image: elasticsearch:8.8.0
     volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - esdata:/usr/share/init_es/data
     environment:
-      - "discovery.type=single-node"
-      - "xpack.security.enabled=false"
-
+      - discovery.type=single-node
+      - xpack.security.enabled=false
     ports:
       - "9200:9200"
+  etl:
+    build:
+      context: ./etl
+    env_file:
+      - ./etl/.env
+    depends_on:
+      - elasticsearch
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-
 
 volumes:
   postgres_data:

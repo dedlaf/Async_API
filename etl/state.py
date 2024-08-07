@@ -54,6 +54,7 @@ class State:
     def set_last_modified(self, last_modified: str) -> None:
         self.state[StorageKey.LAST_MODIFIED_FILMWORK.value] = last_modified
         self.state[StorageKey.LAST_MODIFIED_GENRE.value] = last_modified
+        self.state[StorageKey.LAST_MODIFIED_PERSON.value] = last_modified
         self.storage.save_state(self.state)
 
     def set_last_modified_filmwork(self, last_modified: str) -> None:
@@ -64,8 +65,15 @@ class State:
         self.state[StorageKey.LAST_MODIFIED_GENRE.value] = last_modified
         self.storage.save_state(self.state)
 
+    def set_last_modified_person(self, last_modified: str) -> None:
+        self.state[StorageKey.LAST_MODIFIED_PERSON.value] = last_modified
+        self.storage.save_state(self.state)
+
     def get_last_modified_filmwork(self) -> str:
         return self.state.get(StorageKey.LAST_MODIFIED_FILMWORK.value)
 
     def get_last_modified_genre(self) -> str:
         return self.state.get(StorageKey.LAST_MODIFIED_GENRE.value)
+
+    def get_last_modified_person(self) -> str:
+        return self.state.get(StorageKey.LAST_MODIFIED_PERSON.value)

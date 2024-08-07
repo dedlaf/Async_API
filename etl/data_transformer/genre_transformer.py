@@ -1,5 +1,5 @@
 from typing import Any
-import logging
+
 from data_transformer.data_transformer import DataTransformer
 from schemas.genre import Genre
 
@@ -14,5 +14,5 @@ class GenreTransformer(DataTransformer):
                     id=genre["id"], name=genre["name"], description=genre["description"]
                 )
             )
-        logging.info(transformed_genres)
+
         return transformed_genres

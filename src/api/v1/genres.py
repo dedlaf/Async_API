@@ -1,13 +1,13 @@
-import logging
 from http import HTTPStatus
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from models.genre import Genre
-from services.genres import GenreService, get_genre_service
+from services.genre import GenreService, get_genre_service
 
 router = APIRouter()
+
 
 @router.get("/{genre_id}", response_model=Genre)
 async def genre_details(
@@ -24,7 +24,9 @@ async def genre_details(
 
 
 @router.get("/", response_model=List[Genre])
-async def genre_list(request: Request, genre_service: GenreService = Depends(get_genre_service)) -> List[Genre]:
+async def genre_list(
+    request: Request, genre_service: GenreService = Depends(get_genre_service)
+) -> List[Genre]:
     genres = await genre_service.get_list_of_genres(request=str(request.url))
     if not genres:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="genres not found")

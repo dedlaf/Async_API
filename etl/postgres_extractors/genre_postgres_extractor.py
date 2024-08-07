@@ -13,7 +13,7 @@ class GenrePostgresExtractor(PostgresExtractor):
         return self.__get_genres()
 
     def __get_last_modified(self, last_modified: str) -> None:
-        last_modified_dt = datetime.strptime("2020-05-30 10:05:46", "%Y-%m-%d %H:%M:%S")
+        last_modified_dt = datetime.strptime(last_modified, "%Y-%m-%d %H:%M:%S")
         last_modified_dt = last_modified_dt + timedelta(seconds=1)
         self._last_modified = last_modified_dt.strftime("%Y-%m-%d %H:%M:%S")
 

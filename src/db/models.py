@@ -1,15 +1,7 @@
 import uuid
 
-from sqlalchemy import (
-    TIMESTAMP,
-    Column,
-    Date,
-    Float,
-    ForeignKey,
-    String,
-    Text,
-    UniqueConstraint,
-)
+from sqlalchemy import (TIMESTAMP, Column, Date, Float, ForeignKey, String,
+                        Text, UniqueConstraint)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship

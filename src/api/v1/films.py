@@ -1,12 +1,10 @@
-import logging
 from http import HTTPStatus
 from typing import List
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
-from pydantic import BaseModel
-from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+from fastapi import APIRouter, Depends, HTTPException, Request
+
 from models.film import Film
-from models.person import Person
 from services.film import FilmService, get_film_service
 
 router = APIRouter()
@@ -57,7 +55,7 @@ async def film_details(
     if filter:
         filters["filter"] = filter
     sort_by["sort"] = sort
-    films = await film_service.get_list_of_films(
+    films = await film_service.get_list(
         sort=sort_by, filters=filters, query=query, request=request
     )
 

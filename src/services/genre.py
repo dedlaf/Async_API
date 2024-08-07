@@ -1,36 +1,32 @@
 import logging
 from functools import lru_cache
-from typing import List, Optional, Type
+from typing import List, Optional
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
-from fastapi import Depends, Request
-from redis.asyncio import Redis
-from pydantic import BaseModel
 from db.elastic import get_elastic
 from db.redis import get_redis
+from elasticsearch import AsyncElasticsearch, NotFoundError
+from fastapi import Depends
 from models.genre import Genre
-from .redis_service import RedisService
-GENRE_CACHE_EXPIRE_IN_SECONDS = 60 * 5
+
+from redis.asyncio import Redis
+
+from .settings import GENRE_CACHE_EXPIRE_IN_SECONDS, BaseService
 
 
-class GenreService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch):
-        self.redis = RedisService(redis)
-        self.elastic = elastic
-
+class GenreService(BaseService):
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:
         genre = await self.redis.object_from_cache(object_id=genre_id, key=Genre)
         if not genre:
             genre = await self._get_genre_from_elastic(genre_id)
             if not genre:
                 return None
-            await self.redis.put_object_to_cache(object_id=str(genre.id), key=genre, expire=GENRE_CACHE_EXPIRE_IN_SECONDS)
+            await self.redis.put_object_to_cache(
+                object_id=str(genre.id), key=genre, expire=GENRE_CACHE_EXPIRE_IN_SECONDS
+            )
 
         return genre
 
-    async def get_list_of_genres(
-        self, request: str
-    ) -> Optional[List[Genre]]:
+    async def get_list_of_genres(self, request: str) -> Optional[List[Genre]]:
         genres = await self.redis.objects_from_cache(object_id=request, key=Genre)
         genres = sorted(genres, key=lambda x: x.name)
         if not genres:
@@ -43,10 +39,16 @@ class GenreService:
         self, request: str
     ) -> Optional[List[Genre]]:
         try:
-            search_body = {"query": {"match_all": {}}, "size": 10000, "sort": [{"name.keyword": {"order": "asc"}}]}
+            search_body = {
+                "query": {"match_all": {}},
+                "size": 10000,
+                "sort": [{"name.keyword": {"order": "asc"}}],
+            }
             response = await self.elastic.search(index="genres", body=search_body)
             genres = [Genre(**doc["_source"]) for doc in response["hits"]["hits"]]
-            await self.redis.put_objects_to_cache(object_id=request, key=genres, expire=GENRE_CACHE_EXPIRE_IN_SECONDS)
+            await self.redis.put_objects_to_cache(
+                object_id=request, key=genres, expire=GENRE_CACHE_EXPIRE_IN_SECONDS
+            )
             return genres
 
         except NotFoundError:

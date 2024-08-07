@@ -3,7 +3,8 @@ from typing import Any
 
 from connection_manager import ConnectionManager
 from data_transformer.genre_transformer import GenreTransformer
-from elasticsearch_loaders.genre_elasticsearch_loader import GenreElasticsearchLoader
+from elasticsearch_loaders.genre_elasticsearch_loader import \
+    GenreElasticsearchLoader
 from postgres_extractors.genre_postgres_extractor import GenrePostgresExtractor
 from schemas.genre import Genre
 from settings import CHUNK_SIZE

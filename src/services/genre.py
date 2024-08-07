@@ -35,9 +35,7 @@ class GenreService(BaseService):
                 return []
         return genres
 
-    async def _get_list_from_es(
-        self, request: str
-    ) -> Optional[List[Genre]]:
+    async def _get_list_from_es(self, request: str) -> Optional[List[Genre]]:
         try:
             search_body = {
                 "query": {"match_all": {}},

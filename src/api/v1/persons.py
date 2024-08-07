@@ -1,21 +1,15 @@
 import logging
-import uuid
 from http import HTTPStatus
-from typing import List, Optional
-from uuid import UUID
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
 
 from services.person import PersonService, get_person_service
 
+from .settings import (PersonResponse, filter_query_string,
+                       ignoring_request_args)
+
 router = APIRouter()
-
-
-class PersonResponse(BaseModel):
-    id: UUID = Field(default_factory=uuid.uuid4)
-    full_name: str
-    films: Optional[List[dict]] = []
 
 
 @router.get("/{person_id}", response_model=PersonResponse)
@@ -43,7 +37,8 @@ async def person_list(
     logging.info(query)
     offset_min = page * page_size
     offset_max = (page + 1) * page_size
-    persons = await person_service.get_list(request=str(request.url), query=query)
+    request = filter_query_string(str(request.url), ignoring_request_args)
+    persons = await person_service.get_list(request=request, query=query)
     if not persons:
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="persons not found"

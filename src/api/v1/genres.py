@@ -1,20 +1,13 @@
-import uuid
 from http import HTTPStatus
-from typing import List, Optional
-from uuid import UUID
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
 
 from services.genre import GenreService, get_genre_service
 
+from .settings import GenreResponse
+
 router = APIRouter()
-
-
-class GenreResponse(BaseModel):
-    id: UUID = Field(default_factory=uuid.uuid4)
-    name: str
-    description: Optional[str] = None
 
 
 @router.get("/{genre_id}", response_model=GenreResponse)

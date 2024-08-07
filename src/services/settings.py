@@ -1,5 +1,4 @@
 from elasticsearch import AsyncElasticsearch
-
 from redis import Redis
 
 from .redis import RedisService

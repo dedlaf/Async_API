@@ -2,7 +2,6 @@ import logging
 from typing import List, Optional, Type
 
 from pydantic import BaseModel
-
 from redis.asyncio import Redis
 
 

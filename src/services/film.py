@@ -2,13 +2,13 @@ import logging
 from functools import lru_cache
 from typing import List, Optional
 
-from db.elastic import get_elastic
-from db.redis import get_redis
 from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
-from models.film import Film
-
 from redis.asyncio import Redis
+
+from db.elastic import get_elastic
+from db.redis import get_redis
+from models.film import Film
 
 from .settings import FILM_CACHE_EXPIRE_IN_SECONDS, BaseService
 
@@ -20,8 +20,8 @@ class FilmService(BaseService):
             film = await self._get_film_from_elastic(film_id)
             if not film:
                 return None
-            await self.redis.put_objects_to_cache(
-                object_id=film_id, key=Film, expire=FILM_CACHE_EXPIRE_IN_SECONDS
+            await self.redis.put_object_to_cache(
+                object_id=film_id, key=film, expire=FILM_CACHE_EXPIRE_IN_SECONDS
             )
 
         return film
@@ -62,7 +62,7 @@ class FilmService(BaseService):
                     search_body["query"]["bool"]["must"].append(
                         {"match": {"title": query}}
                     )
-
+            logging.info(search_body)
             search_body["sort"] = [{"imdb_rating": {"order": "desc"}}]
 
             if str(sort.get("sort"))[0] == "-":

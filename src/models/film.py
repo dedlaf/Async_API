@@ -10,3 +10,6 @@ class Film(TimeStampedMixin, UUIDMixin):
     creation_date: Optional[datetime] = None
     imdb_rating: Optional[float] = None
     genres: list[str]
+    actors: list[dict]
+    writers: list[dict]
+    directors: list[dict]

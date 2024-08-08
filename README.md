@@ -1,6 +1,8 @@
 # Проектная работа 4 спринта
 
-https://github.com/users/Sobalchik/projects/5
+https://github.com/users/Sobalchik/projects/5 - проект
+
+https://github.com/Sobalchik/Async_API_sprint_1 - репозиторий
 
 **Важное сообщение для тимлида:** для ускорения проверки проекта укажите ссылку на приватный репозиторий с командной работой в файле readme и отправьте свежее приглашение на аккаунт [BlueDeep](https://github.com/BigDeepBlue).
 

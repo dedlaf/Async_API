@@ -1,9 +1,10 @@
 import logging
 from http import HTTPStatus
-from typing import List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from core.config import CommonQueryParams
 from services.person import PersonService, get_person_service
 
 from .settings import (PersonResponse, filter_query_string,
@@ -28,15 +29,12 @@ async def person_details(
 
 @router.get("/search/", response_model=List[PersonResponse])
 async def person_list(
+    paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
     query: str = "",
-    page: int = 0,
-    page_size: int = 50,
     person_service: PersonService = Depends(get_person_service),
 ) -> List[PersonResponse]:
-    logging.info(query)
-    offset_min = page * page_size
-    offset_max = (page + 1) * page_size
+    logging.info(paginate)
     request = filter_query_string(str(request.url), ignoring_request_args)
     persons = await person_service.get_list(request=request, query=query)
     if not persons:
@@ -52,7 +50,7 @@ async def person_list(
         for person in persons
     ]
 
-    return final_data[offset_min:offset_max]
+    return final_data[paginate.offset_min : paginate.offset_max]
 
 
 @router.get("/{person_id}/film", response_model=list)

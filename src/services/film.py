@@ -6,11 +6,10 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
+from core.config import FILM_CACHE_EXPIRE_IN_SECONDS, BaseService
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.film import Film
-
-from .settings import FILM_CACHE_EXPIRE_IN_SECONDS, BaseService
 
 
 class FilmService(BaseService):

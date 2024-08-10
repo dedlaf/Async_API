@@ -1,8 +1,12 @@
+import logging
+import os
 from http import HTTPStatus
-from typing import List
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from core.config.components.base_service import CommonQueryParams
 from services.film import FilmService, get_film_service
 
 from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
@@ -34,9 +38,8 @@ async def film_details(
 @router.get("/", response_model=List[FilmResponse])
 @router.get("/search/{query}", response_model=List[FilmResponse])
 async def film_details(
+    paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
-    page: int = 0,
-    page_size: int = 100,
     sort: str = "imdb_rating",
     filter: str = None,
     query: str = None,
@@ -44,8 +47,6 @@ async def film_details(
 ) -> FilmResponse:
     sort_by = {}
     filters = {}
-    offset_min = page * page_size
-    offset_max = (page + 1) * page_size
     request = filter_query_string(str(request.url), ignoring_request_args)
     if filter:
         filters["filter"] = filter
@@ -65,4 +66,4 @@ async def film_details(
         )
         for film in films
     ]
-    return final_data[offset_min:offset_max]
+    return final_data[paginate.offset_min : paginate.offset_max]

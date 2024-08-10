@@ -6,7 +6,8 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from core.config import GENRE_CACHE_EXPIRE_IN_SECONDS, BaseService
+from core.config.components.base_service import (GENRE_CACHE_EXPIRE_IN_SECONDS,
+                                                 BaseService)
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.genre import Genre

@@ -2,10 +2,8 @@ services:
   web:
     build:
       context: ./src
-    ports:
-      - '8000:8000'
-    env_file:
-      - ./.env
+    expose:
+      - 8000
   nginx:
     image: nginx:latest
     volumes:
@@ -21,8 +19,8 @@ services:
       - ./sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env
-    ports:
-      - "5432:5432"
+    expose:
+      - 5432
   elasticsearch:
     image: elasticsearch:8.8.0
     volumes:
@@ -30,8 +28,8 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-    ports:
-      - "9200:9200"
+    expose:
+      - 9200
   etl:
     build:
       context: ./etl
@@ -41,8 +39,8 @@ services:
       - elasticsearch
   redis:
     image: redis:alpine
-    ports:
-      - "6379:6379"
+    expose:
+      - 6379
 
 volumes:
   postgres_data:

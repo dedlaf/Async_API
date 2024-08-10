@@ -6,7 +6,8 @@ from elasticsearch import AsyncElasticsearch, NotFoundError
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from core.config import PERSON_CACHE_EXPIRE_IN_SECONDS, BaseService
+from core.config.components.base_service import (
+    PERSON_CACHE_EXPIRE_IN_SECONDS, BaseService)
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.person import Person

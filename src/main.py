@@ -6,7 +6,7 @@ from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 
 from api.v1 import films, genres, persons
-from core import config
+from core.config.components import config
 from db import elastic, redis
 
 

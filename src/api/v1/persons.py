@@ -4,7 +4,7 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from core.config import CommonQueryParams
+from core.config.components.base_service import CommonQueryParams
 from services.person import PersonService, get_person_service
 
 from .settings import (PersonResponse, filter_query_string,
@@ -34,7 +34,6 @@ async def person_list(
     query: str = "",
     person_service: PersonService = Depends(get_person_service),
 ) -> List[PersonResponse]:
-    logging.info(paginate)
     request = filter_query_string(str(request.url), ignoring_request_args)
     persons = await person_service.get_list(request=request, query=query)
     if not persons:

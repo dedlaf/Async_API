@@ -6,7 +6,7 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from core.config import CommonQueryParams
+from core.config.components.base_service import CommonQueryParams
 from services.film import FilmService, get_film_service
 
 from .settings import (FilmResponse, FilmResponseFull, filter_query_string,

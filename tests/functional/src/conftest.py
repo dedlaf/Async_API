@@ -1,13 +1,22 @@
 import asyncio
+import logging
 from pprint import pprint
 
 import aiohttp
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+from .fakedata.fake_data import FakeData
+from .fakedata.fake_movie import FakeMovieData
+from .fakedata.fake_genre import FakeGenreData
+from .fakedata.fake_person import FakePersonData
+
 
 from .settings import test_settings
+m = FakeMovieData(FakePersonData(), FakeGenreData())
 
+fake_data = FakeData()
+bulk_query_movies, bulk_query_genres, bulk_query_persons = fake_data.transform_to_es(*fake_data.generate_data(300))
 
 @pytest_asyncio.fixture(scope="session")
 def event_loop():
@@ -42,19 +51,28 @@ def http_session_get(http_session):
     return inner
 
 
-@pytest_asyncio.fixture(name="es_write_data")
-def es_write_data(es_client):
-    async def inner(data: list[dict], index, mapping):
-        if await es_client.indices.exists(index=index):
-            await es_client.indices.delete(index=index)
+@pytest_asyncio.fixture(scope='session', autouse=True)
+async def es_write_data(es_client):
+    indexes = [
+        test_settings.es_index_movies,
+        test_settings.es_index_persons,
+        test_settings.es_index_genres,
+    ]
+    mappings = [
+        test_settings.es_index_mapping_film,
+        test_settings.es_index_mapping_person,
+        test_settings.es_index_mapping_genres,
+    ]
+    datas = [bulk_query_movies, bulk_query_persons, bulk_query_genres]
+    for i in range(3):
+        if await es_client.indices.exists(index=indexes[i]):
+            await es_client.indices.delete(index=indexes[i])
         await es_client.indices.create(
-            index=index, **mapping
+            index=indexes[i], **mappings[i]
         )
-
-        updated, errors = await async_bulk(client=es_client, actions=data)
-
+        updated, errors = await async_bulk(client=es_client, actions=datas[i])
         if errors:
             raise Exception("Ошибка записи данных в Elasticsearch")
-        await es_client.indices.refresh(index=index)
+        await es_client.indices.refresh(index=indexes[i])
 
-    return inner
+

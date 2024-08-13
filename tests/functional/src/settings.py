@@ -1,18 +1,17 @@
 import json
-from pprint import pprint
 
-from pydantic import Field, json_schema
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
-with open("movies_mapping.json", "r") as file:
+with open("es_mappings/movies_mapping.json", "r") as file:
     movies_json = file.read()
     movies = json.loads(movies_json)
 
-with open("persons_mapping.json", "r") as file:
+with open("es_mappings/persons_mapping.json", "r") as file:
     person_json = file.read()
     persons = json.loads(person_json)
 
-with open("genres_mapping.json", "r") as file:
+with open("es_mappings/genres_mapping.json", "r") as file:
     genre_json = file.read()
     genres = json.loads(genre_json)
 

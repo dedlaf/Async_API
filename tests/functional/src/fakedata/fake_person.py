@@ -1,7 +1,9 @@
 from faker import Faker
 import uuid
+import sys
+sys.path.append("..")
 from .base_models import FakePerson
-from ...settings import test_settings
+from ..settings import test_settings
 
 
 class FakePersonData:
@@ -13,14 +15,14 @@ class FakePersonData:
         if movie_id is None:
             movie_id = str(uuid.uuid4())
         person.films.append({"id": movie_id, "roles": [self.fake.word()]})
-        return self._transform_to_es(person=person)
+        return person
 
     def generate_people(self, count=10, movie_id=None):
         return [self.generate_person(movie_id) for _ in range(count)]
 
     @staticmethod
-    def _transform_to_es(person):
-        return {
+    def transform_to_es(persons):
+        return [{
                 '_id': person.id,
                 '_index': test_settings.es_index_persons,
                 '_source': {
@@ -28,4 +30,4 @@ class FakePersonData:
                     'full_name': person.full_name,
                     'films': person.films,
                     }
-                }
+                } for person in persons]

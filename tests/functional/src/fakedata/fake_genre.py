@@ -4,10 +4,10 @@ from .base_models import FakeGenre
 
 
 class FakeGenreData:
-    def __init__(self):
+    def __init__(self) -> None:
         self.fake = Faker()
 
-    def generate_genre(self, movie_id=None):
+    def generate_genre(self, movie_id: str = None) -> FakeGenre:
         genre = FakeGenre(
             name=self.fake.word(), description='')
 
@@ -15,11 +15,11 @@ class FakeGenreData:
             genre.films.append({"id": movie_id})
         return genre
 
-    def generate_genres(self, count=10, movie_id=None):
+    def generate_genres(self, count: int = 10, movie_id: str = None) -> list[FakeGenre]:
         return [self.generate_genre(movie_id) for _ in range(count)]
 
     @staticmethod
-    def transform_to_es(genres):
+    def transform_to_es(genres: list[FakeGenre]) -> list[dict]:
         return [{
             "_id": genre.id,
             "_index": 'genres',

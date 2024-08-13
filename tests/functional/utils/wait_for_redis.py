@@ -1,6 +1,5 @@
 import asyncio
 import os
-import time
 
 from dotenv import load_dotenv
 from redis.asyncio import Redis

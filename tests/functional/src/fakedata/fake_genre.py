@@ -8,8 +8,7 @@ class FakeGenreData:
         self.fake = Faker()
 
     def generate_genre(self, movie_id: str = None) -> FakeGenre:
-        genre = FakeGenre(
-            name=self.fake.word(), description='')
+        genre = FakeGenre(name=self.fake.word(), description="")
 
         if movie_id:
             genre.films.append({"id": movie_id})
@@ -20,12 +19,15 @@ class FakeGenreData:
 
     @staticmethod
     def transform_to_es(genres: list[FakeGenre]) -> list[dict]:
-        return [{
-            "_id": genre.id,
-            "_index": 'genres',
-            "_source": {
-                "id": genre.id,
-                "name": genre.name,
-                "description": genre.description,
+        return [
+            {
+                "_id": genre.id,
+                "_index": "genres",
+                "_source": {
+                    "id": genre.id,
+                    "name": genre.name,
+                    "description": genre.description,
+                },
             }
-        } for genre in genres]
+            for genre in genres
+        ]

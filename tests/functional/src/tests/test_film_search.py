@@ -1,8 +1,8 @@
 import pytest
 from redis import Redis
 
-from ..settings import test_settings
 from ..conftest import bulk_query_movies
+from ..settings import test_settings
 
 redis = Redis(host=test_settings.redis_host)
 redis.flushall()
@@ -30,7 +30,9 @@ async def test_search(http_session_get, query_data, expected_answer):
 
 @pytest.mark.asyncio
 async def test_get_list(http_session_get):
-    test_settings.es_page_size = len(bulk_query_movies) if len(bulk_query_movies) <= 1000 else 1000
+    test_settings.es_page_size = (
+        len(bulk_query_movies) if len(bulk_query_movies) <= 1000 else 1000
+    )
     body, headers, status = await http_session_get(
         "films/", {"page_size": test_settings.es_page_size}
     )
@@ -40,6 +42,8 @@ async def test_get_list(http_session_get):
 
 @pytest.mark.asyncio
 async def test_get_film(http_session_get):
-    body, headers, status = await http_session_get(f'films/{bulk_query_movies[0].get("_id")}')
+    body, headers, status = await http_session_get(
+        f'films/{bulk_query_movies[0].get("_id")}'
+    )
     assert status == 200
     assert len(body) == 9

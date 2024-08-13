@@ -1,22 +1,24 @@
 import asyncio
-import logging
 from pprint import pprint
 
 import aiohttp
 import pytest_asyncio
 from elasticsearch import AsyncElasticsearch
 from elasticsearch.helpers import async_bulk
+
 from .fakedata.fake_data import FakeData
-from .fakedata.fake_movie import FakeMovieData
 from .fakedata.fake_genre import FakeGenreData
+from .fakedata.fake_movie import FakeMovieData
 from .fakedata.fake_person import FakePersonData
-
-
 from .settings import test_settings
+
 m = FakeMovieData(FakePersonData(), FakeGenreData())
 
 fake_data = FakeData()
-bulk_query_movies, bulk_query_genres, bulk_query_persons = fake_data.transform_to_es(*fake_data.generate_data(300))
+bulk_query_movies, bulk_query_genres, bulk_query_persons = fake_data.transform_to_es(
+    *fake_data.generate_data(300)
+)
+
 
 @pytest_asyncio.fixture(scope="session")
 def event_loop():
@@ -42,16 +44,14 @@ async def http_session():
 @pytest_asyncio.fixture(name="http_session_get")
 def http_session_get(http_session):
     async def inner(url: str, query_data: dict = None):
-        async with http_session.get(
-            "/api/v1/" + url, params=query_data
-        ) as response:
+        async with http_session.get("/api/v1/" + url, params=query_data) as response:
             pprint(response)
             return [await response.json(), response.headers, response.status]
 
     return inner
 
 
-@pytest_asyncio.fixture(scope='session', autouse=True)
+@pytest_asyncio.fixture(scope="session", autouse=True)
 async def es_write_data(es_client):
     indexes = [
         test_settings.es_index_movies,
@@ -67,12 +67,8 @@ async def es_write_data(es_client):
     for i in range(3):
         if await es_client.indices.exists(index=indexes[i]):
             await es_client.indices.delete(index=indexes[i])
-        await es_client.indices.create(
-            index=indexes[i], **mappings[i]
-        )
+        await es_client.indices.create(index=indexes[i], **mappings[i])
         updated, errors = await async_bulk(client=es_client, actions=datas[i])
         if errors:
             raise Exception("Ошибка записи данных в Elasticsearch")
         await es_client.indices.refresh(index=indexes[i])
-
-

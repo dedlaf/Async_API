@@ -1,8 +1,8 @@
 import pytest
 from redis import Redis
 
-from ..settings import test_settings
 from ..conftest import bulk_query_persons
+from ..settings import test_settings
 
 redis = Redis(host=test_settings.redis_host)
 redis.flushall()

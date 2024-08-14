@@ -39,9 +39,25 @@ async def test_get_person(http_session_get):
 
 
 @pytest.mark.asyncio
+async def test_get_person_404(http_session_get):
+    body, headers, status = await http_session_get(
+        "persons/qregfqowe'uj'p9ujr4'[0p29u3"
+    )
+    assert status == 404
+
+
+@pytest.mark.asyncio
 async def test_get_person_film(http_session_get):
     body, headers, status = await http_session_get(
         f"persons/{bulk_query_persons[0].get('_id')}/film"
     )
     assert status == 200
     assert len(body) > 0
+
+
+@pytest.mark.asyncio
+async def test_get_person_film_404(http_session_get):
+    body, headers, status = await http_session_get(
+        "persons/qregfqowe'uj'p9ujr4'[0p29u3/film"
+    )
+    assert status == 404

@@ -1,10 +1,7 @@
-import logging
-import os
 from http import HTTPStatus
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from core.config.components.base_service import CommonQueryParams
 from services.film import FilmService, get_film_service
@@ -36,7 +33,7 @@ async def film_details(
 
 
 @router.get("/", response_model=List[FilmResponse])
-@router.get("/search/{query}", response_model=List[FilmResponse])
+@router.get("/search/", response_model=List[FilmResponse])
 async def film_details(
     paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
@@ -54,7 +51,6 @@ async def film_details(
     films = await film_service.get_list(
         sort=sort_by, filters=filters, query=query, request=request
     )
-
     if not films:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")
 
@@ -66,4 +62,6 @@ async def film_details(
         )
         for film in films
     ]
-    return final_data[paginate.offset_min : paginate.offset_max]
+    if not final_data[paginate.offset_min: paginate.offset_max]:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="films not found")
+    return final_data[paginate.offset_min: paginate.offset_max]

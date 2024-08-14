@@ -25,3 +25,11 @@ async def test_get_genre(http_session_get):
     )
     assert status == 200
     assert len(body) == 3
+
+
+@pytest.mark.asyncio
+async def test_get_genre_404(http_session_get):
+    body, headers, status = await http_session_get(
+        "genres/bel45123;lsdkfjsdfk2tn3om4958ma5"
+    )
+    assert status == 404

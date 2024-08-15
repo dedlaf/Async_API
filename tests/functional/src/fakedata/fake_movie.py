@@ -1,5 +1,5 @@
 import uuid
-from typing import Union
+from typing import Union,Any
 
 from faker import Faker
 
@@ -11,11 +11,11 @@ from .fake_person import FakePersonData
 
 class FakeMovieData:
     def __init__(
-        self, person_generator: FakePersonData, genre_generator: FakeGenreData
+        self
     ) -> None:
         self.fake = Faker()
-        self.person_generator = person_generator
-        self.genre_generator = genre_generator
+        self.person_generator = FakePersonData()
+        self.genre_generator = FakeGenreData()
 
     def _generate_persons(
         self, movie_id: str
@@ -62,7 +62,7 @@ class FakeMovieData:
 
     def generate_movie(
         self, movie_id: str = None, bundle: bool = False
-    ) -> Union[dict, FakeMovie]:
+    ) -> Union[dict[str, Any], FakeMovie]:
         return self._generate_movie_data(movie_id, bundle)
 
     def generate_movies(

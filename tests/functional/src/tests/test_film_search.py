@@ -1,6 +1,7 @@
 import pytest
 from redis import Redis
-
+import aiohttp
+from typing import Any
 from ..conftest import bulk_query_genres, bulk_query_movies
 from ..settings import test_settings
 
@@ -19,7 +20,7 @@ redis.flushall()
     ],
 )
 @pytest.mark.asyncio
-async def test_search(http_session_get, query_data):
+async def test_search(http_session_get: aiohttp.ClientSession, query_data: list[dict[str, Any]]) -> None:
     body, headers, status = await http_session_get("films/search/", query_data)
     assert status == 200
     assert len(body) > 0
@@ -37,7 +38,7 @@ async def test_search(http_session_get, query_data):
     ),
 )
 @pytest.mark.asyncio
-async def test_get_list_pagination(http_session_get, page, page_size, expected_answer):
+async def test_get_list_pagination(http_session_get: aiohttp.ClientSession, page: int, page_size: int, expected_answer: int) -> None:
     body, headers, status = await http_session_get(
         "films/", {"page": page, "page_size": page_size}
     )
@@ -58,8 +59,8 @@ async def test_get_list_pagination(http_session_get, page, page_size, expected_a
 )
 @pytest.mark.asyncio
 async def test_get_list_pagination_404(
-    http_session_get, page, page_size, expected_answer
-):
+    http_session_get: aiohttp.ClientSession, page: int, page_size: int, expected_answer: int
+) -> None:
     body, headers, status = await http_session_get(
         "films/", {"page": page, "page_size": page_size}
     )
@@ -78,7 +79,7 @@ async def test_get_list_pagination_404(
     ],
 )
 @pytest.mark.asyncio
-async def test_get_list_filter(http_session_get, query_data):
+async def test_get_list_filter(http_session_get: aiohttp.ClientSession, query_data: list[dict[str, Any]]) -> None:
     body, headers, status = await http_session_get("films/search/", query_data)
     assert status == 200
     assert len(body) > 0
@@ -95,14 +96,14 @@ async def test_get_list_filter(http_session_get, query_data):
     ],
 )
 @pytest.mark.asyncio
-async def test_get_list_filter_404(http_session_get, query_data):
+async def test_get_list_filter_404(http_session_get: aiohttp.ClientSession, query_data: list[dict[str, Any]]) -> None:
     body, headers, status = await http_session_get("films/search/", query_data)
     assert status == 404
     assert len(body) > 0
 
 
 @pytest.mark.asyncio
-async def test_get_list(http_session_get):
+async def test_get_list(http_session_get: aiohttp.ClientSession) -> None:
     test_settings.es_page_size = (
         len(bulk_query_movies) if len(bulk_query_movies) <= 1000 else 1000
     )
@@ -114,7 +115,7 @@ async def test_get_list(http_session_get):
 
 
 @pytest.mark.asyncio
-async def test_get_film(http_session_get):
+async def test_get_film(http_session_get: aiohttp.ClientSession) -> None:
     body, headers, status = await http_session_get(
         f'films/{bulk_query_movies[0].get("_id")}'
     )
@@ -123,6 +124,6 @@ async def test_get_film(http_session_get):
 
 
 @pytest.mark.asyncio
-async def test_get_film_404(http_session_get):
+async def test_get_film_404(http_session_get: aiohttp.ClientSession) -> None:
     body, headers, status = await http_session_get("films/ldfgahlkjhlqknf;2141afwgtel")
     assert status == 404

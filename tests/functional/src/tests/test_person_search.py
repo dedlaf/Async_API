@@ -1,6 +1,8 @@
+from typing import Any
+
 import pytest
 from redis import Redis
-
+import aiohttp
 from ..conftest import bulk_query_persons
 from ..settings import test_settings
 
@@ -22,7 +24,7 @@ redis.flushall()
     ],
 )
 @pytest.mark.asyncio
-async def test_search(http_session_get, query_data, expected_answer):
+async def test_search(http_session_get: aiohttp.ClientSession, query_data: dict[str, Any], expected_answer: dict[str, int]) -> None:
     print(bulk_query_persons)
     body, headers, status = await http_session_get("persons/search/", query_data)
     assert status == 200
@@ -30,7 +32,7 @@ async def test_search(http_session_get, query_data, expected_answer):
 
 
 @pytest.mark.asyncio
-async def test_get_person(http_session_get):
+async def test_get_person(http_session_get: aiohttp.ClientSession) -> None:
     body, headers, status = await http_session_get(
         f"persons/{bulk_query_persons[0].get('_id')}"
     )
@@ -39,7 +41,7 @@ async def test_get_person(http_session_get):
 
 
 @pytest.mark.asyncio
-async def test_get_person_404(http_session_get):
+async def test_get_person_404(http_session_get: aiohttp.ClientSession) -> None:
     body, headers, status = await http_session_get(
         "persons/qregfqowe'uj'p9ujr4'[0p29u3"
     )
@@ -47,7 +49,7 @@ async def test_get_person_404(http_session_get):
 
 
 @pytest.mark.asyncio
-async def test_get_person_film(http_session_get):
+async def test_get_person_film(http_session_get: aiohttp.ClientSession) -> None:
     body, headers, status = await http_session_get(
         f"persons/{bulk_query_persons[0].get('_id')}/film"
     )
@@ -56,7 +58,7 @@ async def test_get_person_film(http_session_get):
 
 
 @pytest.mark.asyncio
-async def test_get_person_film_404(http_session_get):
+async def test_get_person_film_404(http_session_get: aiohttp.ClientSession) -> None:
     body, headers, status = await http_session_get(
         "persons/qregfqowe'uj'p9ujr4'[0p29u3/film"
     )

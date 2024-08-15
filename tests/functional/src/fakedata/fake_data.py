@@ -7,14 +7,12 @@ from .fake_person import FakePersonData
 class FakeData:
 
     def __init__(self) -> None:
-        self.fake_person_data = FakePersonData()
         self.fake_genre_data = FakeGenreData()
-        self.fake_movie_data = FakeMovieData(
-            self.fake_person_data, self.fake_genre_data
-        )
+        self.fake_person_data = FakePersonData()
+        self.__fake_movie_data = FakeMovieData()
 
     def generate_data(self, count: int = 10) -> tuple[list, list, list]:
-        data = self.fake_movie_data.generate_movies(count=count, bundle=True)
+        data = self.__fake_movie_data.generate_movies(count=count, bundle=True)
         movies = []
         genres = []
         persons = []
@@ -31,7 +29,7 @@ class FakeData:
         persons: list[FakePerson],
     ) -> tuple[list, list, list]:
         return (
-            self.fake_movie_data.transform_to_es(movies),
+            self.__fake_movie_data.transform_to_es(movies),
             self.fake_genre_data.transform_to_es(genres),
             self.fake_person_data.transform_to_es(persons),
         )

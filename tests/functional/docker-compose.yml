@@ -1,0 +1,54 @@
+services:
+  web:
+    build:
+      context: ../../src
+    image: fastapi-image
+    ports:
+      - 8000:8000
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ../../nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+  db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ../../sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - ../../.env
+    expose:
+      - 5432
+  elasticsearch:
+    image: elasticsearch:8.8.0
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - 9200:9200
+  redis:
+    image: redis:alpine
+    expose:
+      - 6379:6379
+  tests:
+    build:
+      context: .
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app
+    depends_on:
+      - elasticsearch
+      - redis
+    ports:
+      - 7878:7878
+
+
+volumes:
+  postgres_data:
+  esdata:

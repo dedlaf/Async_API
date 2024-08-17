@@ -1,26 +1,38 @@
-import logging
 from functools import lru_cache
 from typing import List, Optional
 
-from elasticsearch import AsyncElasticsearch, NotFoundError
+from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from core.config.components.base_service import (
-    PERSON_CACHE_EXPIRE_IN_SECONDS, BaseService)
+from core.config.components.cache import AbstractCacheService, RedisService
+from core.config.components.common_params import PERSON_CACHE_EXPIRE_IN_SECONDS
+from core.config.components.storage import (AbstractStorageHandler,
+                                            ElasticHandler)
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.person import Person
 
 
-class PersonService(BaseService):
+class PersonService:
+    def __init__(
+        self, cache: AbstractCacheService, storage_handler: AbstractStorageHandler
+    ):
+        self.cache = RedisService(cache)
+        self.storage_handler = ElasticHandler(
+            storage_handler,
+            model=Person,
+            model_index="persons",
+            search_query="full_name",
+        )
+
     async def get_by_id(self, person_id: str) -> Optional[Person]:
-        person = await self.redis.object_from_cache(object_id=person_id, key=Person)
+        person = await self.cache.get_object_from_cache(object_id=person_id, key=Person)
         if not person:
-            person = await self._get_person_from_elastic(person_id)
+            person = await self.storage_handler.get_by_id(person_id)
             if not person:
                 return None
-            await self.redis.put_object_to_cache(
+            await self.cache.put_object_to_cache(
                 object_id=str(person.id),
                 key=person,
                 expire=PERSON_CACHE_EXPIRE_IN_SECONDS,
@@ -29,40 +41,16 @@ class PersonService(BaseService):
         return person
 
     async def get_list(self, request: str, query: str) -> Optional[List[Person]]:
-        persons = await self.redis.objects_from_cache(object_id=request, key=Person)
-        persons = sorted(persons, key=lambda x: x.full_name)
+        persons = await self.cache.get_objects_from_cache(object_id=request, key=Person)
         if not persons:
-            persons = await self._get_list_from_es(request=request, query=query)
+            persons = await self.storage_handler.get_list(request=request, query=query)
             if not persons:
                 return []
+        await self.cache.put_objects_to_cache(
+            object_id=request, key=persons, expire=PERSON_CACHE_EXPIRE_IN_SECONDS
+        )
+        persons = sorted(persons, key=lambda x: x.full_name)
         return persons
-
-    async def _get_list_from_es(
-        self, request: str, query: str
-    ) -> Optional[List[Person]]:
-        try:
-            search_body = {
-                "query": {"bool": {"must": [{"match": {"full_name": query}}]}},
-                "size": 10000,
-            }
-
-            response = await self.elastic.search(index="persons", body=search_body)
-            persons = [Person(**doc["_source"]) for doc in response["hits"]["hits"]]
-            await self.redis.put_objects_to_cache(
-                object_id=request, key=persons, expire=PERSON_CACHE_EXPIRE_IN_SECONDS
-            )
-            return persons
-
-        except NotFoundError:
-            logging.error(f"404 Not Found")
-            return None
-
-    async def _get_person_from_elastic(self, person_id: str) -> Optional[Person]:
-        try:
-            doc = await self.elastic.get(index="persons", id=person_id)
-        except NotFoundError:
-            return None
-        return Person(**doc["_source"])
 
 
 @lru_cache()

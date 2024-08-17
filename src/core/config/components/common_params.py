@@ -1,15 +1,3 @@
-from elasticsearch import AsyncElasticsearch
-from redis import Redis
-
-from services.redis import RedisService
-
-
-class BaseService:
-    def __init__(self, redis: Redis, elastic: AsyncElasticsearch) -> None:
-        self.redis = RedisService(redis)
-        self.elastic = elastic
-
-
 class CommonQueryParams:
     def __init__(self, page: int = 0, page_size: int = 50):
         self.page = page

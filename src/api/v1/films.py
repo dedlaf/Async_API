@@ -3,7 +3,7 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from core.config.components.base_service import CommonQueryParams
+from core.config.components.common_params import CommonQueryParams
 from services.film import FilmService, get_film_service
 
 from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
@@ -34,7 +34,7 @@ async def film_details(
 
 @router.get("/", response_model=List[FilmResponse])
 @router.get("/search/", response_model=List[FilmResponse])
-async def film_details(
+async def films_details(
     paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
     sort: str = "imdb_rating",
@@ -62,6 +62,6 @@ async def film_details(
         )
         for film in films
     ]
-    if not final_data[paginate.offset_min: paginate.offset_max]:
+    if not final_data[paginate.offset_min : paginate.offset_max]:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="films not found")
-    return final_data[paginate.offset_min: paginate.offset_max]
+    return final_data[paginate.offset_min : paginate.offset_max]

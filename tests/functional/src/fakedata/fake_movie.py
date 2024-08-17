@@ -1,5 +1,5 @@
 import uuid
-from typing import Union,Any
+from typing import Any, Union
 
 from faker import Faker
 
@@ -10,9 +10,7 @@ from .fake_person import FakePersonData
 
 
 class FakeMovieData:
-    def __init__(
-        self
-    ) -> None:
+    def __init__(self) -> None:
         self.fake = Faker()
         self.person_generator = FakePersonData()
         self.genre_generator = FakeGenreData()

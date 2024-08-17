@@ -1,10 +1,9 @@
-import logging
 from http import HTTPStatus
 from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from core.config.components.base_service import CommonQueryParams
+from core.config.components.common_params import CommonQueryParams
 from services.person import PersonService, get_person_service
 
 from .settings import (PersonResponse, filter_query_string,

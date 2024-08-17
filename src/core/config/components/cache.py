@@ -1,3 +1,4 @@
+import abc
 import logging
 from typing import List, Optional, Type
 
@@ -5,11 +6,33 @@ from pydantic import BaseModel
 from redis.asyncio import Redis
 
 
-class RedisService:
+class AbstractCacheService(abc.ABC):
+    @abc.abstractmethod
+    def get_object_from_cache(
+        self, object_id: str, key: Type[BaseModel]
+    ) -> Optional[BaseModel]: ...
+
+    @abc.abstractmethod
+    def put_object_to_cache(
+        self, object_id: str, key: Type[BaseModel], expire: int = 5 * 60
+    ) -> None: ...
+
+    @abc.abstractmethod
+    def get_objects_from_cache(
+        self, object_id: str, key: Type[BaseModel]
+    ) -> Optional[BaseModel]: ...
+
+    @abc.abstractmethod
+    def put_objects_to_cache(
+        self, object_id: str, key: List[BaseModel], expire: int = 5 * 60
+    ) -> None: ...
+
+
+class RedisService(AbstractCacheService):
     def __init__(self, redis: Redis) -> None:
         self.redis = redis
 
-    async def object_from_cache(
+    async def get_object_from_cache(
         self, object_id: str, key: Type[BaseModel]
     ) -> Optional[BaseModel]:
         data = await self.redis.get(object_id)
@@ -24,7 +47,7 @@ class RedisService:
     ) -> None:
         await self.redis.set(object_id, key.json(), expire)
 
-    async def objects_from_cache(
+    async def get_objects_from_cache(
         self, object_id: str, key: Type[BaseModel]
     ) -> Optional[BaseModel]:
         try:

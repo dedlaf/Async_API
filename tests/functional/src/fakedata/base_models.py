@@ -23,7 +23,7 @@ class FakeMovie(BaseModel):
     imdb_rating: float = 0
     description: Optional[str] = None
     genres: list[str]
-    actors: list[dict[str,str]]
+    actors: list[dict[str, str]]
     actors_names: list[str]
     writers: list[dict]
     writers_names: list[str]

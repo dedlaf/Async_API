@@ -2,6 +2,7 @@ services:
   web:
     build:
       context: ./src
+    image: fastapi-image
     expose:
       - 8000
   nginx:
@@ -19,8 +20,8 @@ services:
       - ./sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - ./.env
-    expose:
-      - 5432
+    ports:
+      - 5432:5432
   elasticsearch:
     image: elasticsearch:8.8.0
     volumes:
@@ -28,8 +29,8 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-    expose:
-      - 9200
+    ports:
+      - 9200:9200
   etl:
     build:
       context: ./etl
@@ -39,8 +40,9 @@ services:
       - elasticsearch
   redis:
     image: redis:alpine
-    expose:
-      - 6379
+    ports:
+      - 6379:6379
+
 
 volumes:
   postgres_data:

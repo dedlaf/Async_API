@@ -15,11 +15,7 @@ bulk_query_movies, bulk_query_genres, bulk_query_persons = fake_data.transform_t
 )
 
 
-datas = [
-    bulk_query_movies,
-    bulk_query_persons,
-    bulk_query_genres
-]
+datas = [bulk_query_movies, bulk_query_persons, bulk_query_genres]
 indexes = [
     test_settings.es_index_movies,
     test_settings.es_index_persons,
@@ -54,7 +50,7 @@ async def http_session():
 
 
 @pytest_asyncio.fixture(name="http_session_get")
-def http_session_get(http_session: aiohttp.ClientSession):
+def http_session_get(http_session: aiohttp.ClientSession) -> callable:
     async def inner(url: str, query_data: dict = None) -> list:
         async with http_session.get("/api/v1/" + url, params=query_data) as response:
             pprint(response)

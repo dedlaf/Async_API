@@ -1,4 +1,3 @@
-import logging
 from http import HTTPStatus
 from typing import Annotated, List
 
@@ -49,7 +48,7 @@ async def person_list(
         for person in persons
     ]
 
-    return final_data[paginate.offset_min : paginate.offset_max]
+    return final_data[paginate.offset_min: paginate.offset_max]
 
 
 @router.get("/{person_id}/film", response_model=list)

@@ -3,8 +3,10 @@ from typing import Any
 
 from connection_manager import ConnectionManager
 from data_transformer.person_transformer import PersonTransformer
-from elasticsearch_loaders.person_elasticsearch_loader import PersonElasticsearchLoader
-from postgres_extractors.person_postgres_extractor import PersonPostgresExtractor
+from elasticsearch_loaders.person_elasticsearch_loader import \
+    PersonElasticsearchLoader
+from postgres_extractors.person_postgres_extractor import \
+    PersonPostgresExtractor
 from schemas.person import Person
 from settings import CHUNK_SIZE
 from state import State

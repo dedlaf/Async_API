@@ -34,7 +34,7 @@ async def film_details(
 
 @router.get("/", response_model=List[FilmResponse])
 @router.get("/search/", response_model=List[FilmResponse])
-async def film_details(
+async def films_details(
     paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
     sort: str = "imdb_rating",

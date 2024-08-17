@@ -15,7 +15,9 @@ from models.genre import Genre
 
 
 class GenreService:
-    def __init__(self, cache: Redis, storage_handler: AbstractStorageHandler):
+    def __init__(
+        self, cache: AbstractCacheService, storage_handler: AbstractStorageHandler
+    ):
         self.cache = RedisService(cache)
         self.storage_handler = ElasticHandler(
             storage_handler,

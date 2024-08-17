@@ -5,22 +5,23 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from core.config.components.base_service import (GENRE_CACHE_EXPIRE_IN_SECONDS,
-                                                 ElasticHandler, RedisService)
+from core.config.components.cache import AbstractCacheService, RedisService
+from core.config.components.common_params import GENRE_CACHE_EXPIRE_IN_SECONDS
+from core.config.components.storage import (AbstractStorageHandler,
+                                            ElasticHandler)
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.genre import Genre
 
 
 class GenreService:
-    def __init__(self, cache: Redis, storage_handler: ElasticHandler):
+    def __init__(self, cache: Redis, storage_handler: AbstractStorageHandler):
         self.cache = RedisService(cache)
         self.storage_handler = ElasticHandler(
             storage_handler,
             model=Genre,
             model_index="genres",
             search_query="name",
-            filter_query="",
         )
 
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:

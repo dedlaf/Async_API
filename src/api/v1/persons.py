@@ -3,7 +3,7 @@ from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
-from core.config.components.base_service import CommonQueryParams
+from core.config.components.common_params import CommonQueryParams
 from services.person import PersonService, get_person_service
 
 from .settings import (PersonResponse, filter_query_string,
@@ -48,7 +48,7 @@ async def person_list(
         for person in persons
     ]
 
-    return final_data[paginate.offset_min: paginate.offset_max]
+    return final_data[paginate.offset_min : paginate.offset_max]
 
 
 @router.get("/{person_id}/film", response_model=list)

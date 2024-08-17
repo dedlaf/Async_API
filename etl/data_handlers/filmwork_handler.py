@@ -3,10 +3,10 @@ from typing import Any
 
 from connection_manager import ConnectionManager
 from data_transformer.filmwork_transformer import FilmworkTransformer
-from elasticsearch_loaders.filmwork_elasticsearch_loader import \
-    FilmworkElasticsearchLoader
-from postgres_extractors.filmwork_postgres_extractor import \
-    FilmworkPostgresExtractor
+from elasticsearch_loaders.filmwork_elasticsearch_loader import (
+    FilmworkElasticsearchLoader,
+)
+from postgres_extractors.filmwork_postgres_extractor import FilmworkPostgresExtractor
 from schemas.filmwork import Filmwork
 from settings import CHUNK_SIZE
 from state import State

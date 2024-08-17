@@ -5,22 +5,23 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import Depends
 from redis.asyncio import Redis
 
-from core.config.components.base_service import (
-    PERSON_CACHE_EXPIRE_IN_SECONDS, ElasticHandler, RedisService)
+from core.config.components.cache import AbstractCacheService, RedisService
+from core.config.components.common_params import PERSON_CACHE_EXPIRE_IN_SECONDS
+from core.config.components.storage import (AbstractStorageHandler,
+                                            ElasticHandler)
 from db.elastic import get_elastic
 from db.redis import get_redis
 from models.person import Person
 
 
 class PersonService:
-    def __init__(self, cache: Redis, storage_handler: ElasticHandler):
+    def __init__(self, cache: Redis, storage_handler: AbstractStorageHandler):
         self.cache = RedisService(cache)
         self.storage_handler = ElasticHandler(
             storage_handler,
             model=Person,
             model_index="persons",
             search_query="full_name",
-            filter_query="",
         )
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:

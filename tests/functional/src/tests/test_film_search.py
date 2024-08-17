@@ -56,10 +56,10 @@ async def test_get_list_pagination(
     "page, page_size, expected_answer",
     (
         [
-            (1000, 1000, 404),
-            (20, 3424, 404),
-            (-50123, 1, 404),
-            ("second", 50, 422),
+            (1000, 1000, HTTPStatus.NOT_FOUND),
+            (20, 3424, HTTPStatus.NOT_FOUND),
+            (-50123, 1, HTTPStatus.NOT_FOUND),
+            ("second", 50, HTTPStatus.UNPROCESSABLE_ENTITY),
         ]
     ),
 )

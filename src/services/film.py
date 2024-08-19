@@ -18,14 +18,8 @@ class FilmService:
     def __init__(
         self, cache: AbstractCacheService, storage_handler: AbstractStorageHandler
     ):
-        self.cache = RedisService(cache)
-        self.storage_handler = ElasticHandler(
-            storage_handler,
-            model=Film,
-            model_index="movies",
-            search_query="title",
-            filter_query="genres",
-        )
+        self.cache = cache
+        self.storage_handler = storage_handler
 
     async def get_by_id(self, film_id: str) -> Optional[Film]:
         film = await self.cache.get_object_from_cache(object_id=film_id, key=Film)
@@ -64,4 +58,13 @@ def get_film_service(
     redis: Redis = Depends(get_redis),
     elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> FilmService:
-    return FilmService(redis, elastic)
+    return FilmService(
+        RedisService(redis),
+        ElasticHandler(
+            elastic,
+            model=Film,
+            model_index="movies",
+            search_query="title",
+            filter_query="genres",
+        ),
+    )

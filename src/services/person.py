@@ -18,13 +18,8 @@ class PersonService:
     def __init__(
         self, cache: AbstractCacheService, storage_handler: AbstractStorageHandler
     ):
-        self.cache = RedisService(cache)
-        self.storage_handler = ElasticHandler(
-            storage_handler,
-            model=Person,
-            model_index="persons",
-            search_query="full_name",
-        )
+        self.cache = cache
+        self.storage_handler = storage_handler
 
     async def get_by_id(self, person_id: str) -> Optional[Person]:
         person = await self.cache.get_object_from_cache(object_id=person_id, key=Person)
@@ -58,4 +53,12 @@ def get_person_service(
     redis: Redis = Depends(get_redis),
     elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> PersonService:
-    return PersonService(redis, elastic)
+    return PersonService(
+        RedisService(redis),
+        ElasticHandler(
+            elastic,
+            model=Person,
+            model_index="persons",
+            search_query="full_name",
+        ),
+    )

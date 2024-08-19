@@ -18,13 +18,8 @@ class GenreService:
     def __init__(
         self, cache: AbstractCacheService, storage_handler: AbstractStorageHandler
     ):
-        self.cache = RedisService(cache)
-        self.storage_handler = ElasticHandler(
-            storage_handler,
-            model=Genre,
-            model_index="genres",
-            search_query="name",
-        )
+        self.cache = cache
+        self.storage_handler = storage_handler
 
     async def get_by_id(self, genre_id: str) -> Optional[Genre]:
         genre = await self.cache.get_object_from_cache(object_id=genre_id, key=Genre)
@@ -56,4 +51,12 @@ def get_genre_service(
     redis: Redis = Depends(get_redis),
     elastic: AsyncElasticsearch = Depends(get_elastic),
 ) -> GenreService:
-    return GenreService(redis, elastic)
+    return GenreService(
+        RedisService(redis),
+        ElasticHandler(
+            elastic,
+            model=Genre,
+            model_index="genres",
+            search_query="name",
+        ),
+    )

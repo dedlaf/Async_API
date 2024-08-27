@@ -4,6 +4,11 @@ services:
       context: ./src
     expose:
       - 8000
+  auth:
+    build:
+      context: ./auth_service
+    expose:
+      - 8070
   nginx:
     image: nginx:latest
     volumes:

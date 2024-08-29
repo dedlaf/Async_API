@@ -4,12 +4,15 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from core.config.components.common_params import CommonQueryParams
+from core.config.components.verify_decorator import verify_user
 from services.film import FilmService, get_film_service
 
 from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
                        ignoring_request_args)
 
+
 router = APIRouter()
+
 
 
 @router.get("/{film_id}", response_model=FilmResponseFull)
@@ -32,6 +35,7 @@ async def film_details(
     )
 
 
+@verify_user
 @router.get("/", response_model=List[FilmResponse])
 @router.get("/search/", response_model=List[FilmResponse])
 async def films_details(
@@ -41,7 +45,7 @@ async def films_details(
     filter: str = None,
     query: str = None,
     film_service: FilmService = Depends(get_film_service),
-) -> FilmResponse:
+) -> list[FilmResponse]:
     sort_by = {}
     filters = {}
     request = filter_query_string(str(request.url), ignoring_request_args)

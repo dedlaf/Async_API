@@ -35,13 +35,13 @@ services:
       - xpack.security.enabled=false
     expose:
       - 9200
-  etl:
-    build:
-      context: ./etl
-    env_file:
-      - ./etl/.env
-    depends_on:
-      - elasticsearch
+  #etl:
+  #  build:
+  #    context: ./etl
+  #  env_file:
+  #    - ./etl/.env
+  #  depends_on:
+  #    - elasticsearch
   redis:
     image: redis:alpine
     expose:

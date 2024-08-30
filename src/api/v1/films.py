@@ -12,7 +12,7 @@ from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
 
 
 router = APIRouter()
-
+print(verify_user)
 
 
 @router.get("/{film_id}", response_model=FilmResponseFull)
@@ -35,9 +35,9 @@ async def film_details(
     )
 
 
-@verify_user
 @router.get("/", response_model=List[FilmResponse])
 @router.get("/search/", response_model=List[FilmResponse])
+@verify_user
 async def films_details(
     paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,

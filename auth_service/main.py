@@ -1,52 +1,41 @@
-from fastapi import Depends, FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from contextlib import asynccontextmanager
 
-from async_fastapi_jwt_auth import AuthJWT
 from async_fastapi_jwt_auth.exceptions import AuthJWTException
-from async_fastapi_jwt_auth.auth_jwt import AuthJWTBearer
+from fastapi import FastAPI, Request
+from fastapi.responses import ORJSONResponse
+from redis.asyncio import Redis
 
-app = FastAPI()
-auth_dep = AuthJWTBearer()
-
-
-class User(BaseModel):
-    username: str
-    password: str
+from api.auth.v1 import token_urls
+from core.config.components import settings
+from db import redis
 
 
-class Settings(BaseModel):
-    authjwt_secret_key: str = "secret"
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    redis.redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+
+    yield
+    await redis.redis.close()
 
 
-@AuthJWT.load_config
-def get_config():
-    return Settings()
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    docs_url="/api/v1/auth/openapi",
+    openapi_url="/api/v1/auth/openapi.json",
+    default_response_class=ORJSONResponse,
+    lifespan=lifespan,
+)
 
 
 @app.exception_handler(AuthJWTException)
 def authjwt_exception_handler(request: Request, exc: AuthJWTException):
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.message})
+    return ORJSONResponse(status_code=exc.status_code, content={"detail": exc.message})
 
 
-@app.post("/login")
-async def login(user: User, authorize: AuthJWT = Depends(auth_dep)):
-    if user.username != "test" or user.password != "test":
-        raise HTTPException(status_code=401, detail="Bad username or password")
-
-    access_token = await authorize.create_access_token(subject=user.username)
-    return {"access_token": access_token}
-
-
-@app.get("/user")
-async def user(authorize: AuthJWT = Depends(auth_dep)):
-    await authorize.jwt_required()
-
-    current_user = await authorize.get_jwt_subject()
-    return {"user": current_user}
+app.include_router(token_urls.router, prefix="/api/v1/auth", tags=["auth"])
 
 
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("basic:app", host="0.0.0.0", port=8000)
+    uvicorn.run("basic:app", host="0.0.0.0", port=8070)

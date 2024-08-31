@@ -1,13 +1,15 @@
 from http import HTTPStatus
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from core.config.components.common_params import CommonQueryParams
+from core.config.components.verify_decorator import verify_user
 from services.film import FilmService, get_film_service
 
 from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
                        ignoring_request_args)
+
 
 router = APIRouter()
 
@@ -34,14 +36,16 @@ async def film_details(
 
 @router.get("/", response_model=List[FilmResponse])
 @router.get("/search/", response_model=List[FilmResponse])
+@verify_user
 async def films_details(
     paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
+    response: Response,
     sort: str = "imdb_rating",
     filter: str = None,
     query: str = None,
     film_service: FilmService = Depends(get_film_service),
-) -> FilmResponse:
+) -> list[FilmResponse]:
     sort_by = {}
     filters = {}
     request = filter_query_string(str(request.url), ignoring_request_args)

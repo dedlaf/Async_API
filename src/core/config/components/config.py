@@ -9,7 +9,7 @@ from core.config.components.logger import LOGGING
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
-    PROJECT_NAME: str = "movies"
+    PROJECT_NAME: str = "auth"
 
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379

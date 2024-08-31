@@ -14,8 +14,12 @@ class Tokens:
         return await self.auth.get_jwt_subject()
 
     async def create(self, user):
-        access_token = await self.auth.create_access_token(subject=user.username, expires_time=timedelta(minutes=10))
-        refresh_token = await self.auth.create_refresh_token(subject=user.username, expires_time=timedelta(days=10))
+        access_token = await self.auth.create_access_token(
+            subject=user.username, expires_time=timedelta(minutes=10)
+        )
+        refresh_token = await self.auth.create_refresh_token(
+            subject=user.username, expires_time=timedelta(days=10)
+        )
 
         return access_token, refresh_token
 

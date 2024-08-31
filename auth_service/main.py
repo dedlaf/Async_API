@@ -10,8 +10,6 @@ from core.config.components import settings
 from db import redis
 
 
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis.redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import (Column, Text, UniqueConstraint)
+from sqlalchemy import Column, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -18,4 +18,3 @@ class User(Base):
     login = Column(Text, nullable=False)
     password = Column(Text, nullable=False)
     email = Column(Text)
-

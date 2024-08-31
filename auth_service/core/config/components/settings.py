@@ -18,8 +18,8 @@ class Settings(BaseModel):
 
 
 class User(BaseModel):
-    username: str = 'test'
-    password: str = 'test'
+    username: str = "test"
+    password: str = "test"
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")

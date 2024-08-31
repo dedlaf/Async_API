@@ -1,8 +1,8 @@
-from fastapi import Depends, HTTPException, Response, APIRouter
 from async_fastapi_jwt_auth import AuthJWT
-from core.config.components.token_conf import Tokens, get_tokens
-from core.config.components.settings import Settings, User
+from fastapi import APIRouter, Depends, HTTPException, Response
 
+from core.config.components.settings import Settings, User
+from core.config.components.token_conf import Tokens, get_tokens
 
 router = APIRouter()
 
@@ -23,7 +23,9 @@ async def login(user: User, response: Response, tokens: Tokens = Depends(get_tok
 
 
 @router.get("/refresh")
-async def refresh(response: Response, user: User = User(), tokens: Tokens = Depends(get_tokens)):
+async def refresh(
+    response: Response, user: User = User(), tokens: Tokens = Depends(get_tokens)
+):
     return await tokens.refresh(user, response)
 
 

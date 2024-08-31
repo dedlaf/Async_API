@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 from core.config.components.common_params import CommonQueryParams
 from core.config.components.verify_decorator import verify_user
@@ -12,7 +12,6 @@ from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
 
 
 router = APIRouter()
-print(verify_user)
 
 
 @router.get("/{film_id}", response_model=FilmResponseFull)
@@ -41,6 +40,7 @@ async def film_details(
 async def films_details(
     paginate: Annotated[CommonQueryParams, Depends(CommonQueryParams)],
     request: Request,
+    response: Response,
     sort: str = "imdb_rating",
     filter: str = None,
     query: str = None,

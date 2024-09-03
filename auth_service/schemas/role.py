@@ -1,4 +1,4 @@
-from pydantic import BaseModel, UUID4
+from pydantic import UUID4, BaseModel
 
 
 class Role(BaseModel):
@@ -6,17 +6,9 @@ class Role(BaseModel):
     name: str
 
 
-class RoleCreate(BaseModel):
-    name: str
-
-
 class RoleUpdate(BaseModel):
     name: str
 
 
-class RoleOut(BaseModel):
-    id: UUID4
-    name: str
-
-    class Config:
-        orm_mode = True
+class RoleResponse(Role):
+    ...

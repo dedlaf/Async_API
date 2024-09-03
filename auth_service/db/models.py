@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import (Column, Text, ForeignKey)
+from sqlalchemy import Column, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -13,10 +13,10 @@ class User(Base):
     __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    login = Column(Text, nullable=False)
+    login = Column(Text, nullable=False, unique=True)
     password = Column(Text, nullable=False)
     email = Column(Text)
-    role_id = Column(UUID, ForeignKey('auth.role.id'))
+    role_id = Column(UUID, ForeignKey("auth.role.id"))
 
     role = relationship("Role", backref="users")
 
@@ -26,4 +26,4 @@ class Role(Base):
     __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    name = Column(Text, nullable=False)
+    name = Column(Text, nullable=False, unique=True)

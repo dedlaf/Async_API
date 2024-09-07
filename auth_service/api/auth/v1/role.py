@@ -1,63 +1,82 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from schemas.role import RoleCreateSchema, RoleResponseSchema, RoleUpdateSchema
 
-from db.session import get_db
-from schemas.role import RoleUpdate, RoleResponse
-from sqlalchemy.orm import Session
-
-from schemas.role import Role
 from services.role_service import RoleService, get_role_service
 
 router = APIRouter()
 
 
-@router.post("/", response_model=RoleResponse)
-async def create_role(role_name: str, role_service: RoleService = Depends(get_role_service)):
-    role = role_service.create_role(role_name)
-    return role
+@router.post(
+    "/", response_model=RoleResponseSchema, status_code=status.HTTP_201_CREATED
+)
+async def create_role(
+    role: RoleCreateSchema, role_service: RoleService = Depends(get_role_service)
+):
+    new_role = role_service.create_role(role)
+
+    return new_role
 
 
-@router.get("/{role_id}", response_model=RoleResponse)
-async def get_role(role_id: uuid.UUID, db: Session = Depends(get_db)):
-    role = db.query(Role).filter(Role.id == role_id).first()
+@router.get(
+    "/{role_id}", response_model=RoleResponseSchema, status_code=status.HTTP_200_OK
+)
+async def get_role(
+    role_id: uuid.UUID, role_service: RoleService = Depends(get_role_service)
+):
+    role = role_service.get_role(role_id)
 
     if not role:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
 
     return role
 
 
-@router.get("/", response_model=list[RoleResponse])
-async def get_roles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    roles = db.query(Role).offset(skip).limit(limit).all()
+@router.get(
+    "/", response_model=list[RoleResponseSchema], status_code=status.HTTP_200_OK
+)
+async def get_roles(
+    skip: int = 0,
+    limit: int = 100,
+    role_service: RoleService = Depends(get_role_service),
+):
+    roles = role_service.get_roles(skip=skip, limit=limit)
 
     return roles
 
 
-@router.put("/{role_id}", response_model=RoleResponse)
-async def update_role(role_id: uuid.UUID, role: RoleUpdate, db: Session = Depends(get_db)):
-    db_role = db.query(Role).filter(Role.id == role_id).first()
+@router.put(
+    "/{role_id}", response_model=RoleResponseSchema, status_code=status.HTTP_200_OK
+)
+async def update_role(
+    role_id: uuid.UUID,
+    role_update: RoleUpdateSchema,
+    role_service: RoleService = Depends(get_role_service),
+):
+    updated_role = role_service.update_role(role_id, role_update)
 
-    if not db_role:
-        raise HTTPException(status_code=404, detail="Role not found")
+    if not updated_role:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
 
-    for key, value in role.dict(exclude_unset=True).items():
-        setattr(db_role, key, value)
-
-    db.commit()
-    db.refresh(db_role)
-
-    return db_role
+    return updated_role
 
 
-@router.delete("/{role_id}", response_model=RoleResponse)
-def delete_role(role_id: uuid.UUID, db: Session = Depends(get_db)):
-    role = db.query(Role).filter(Role.id == role_id).first()
+@router.delete(
+    "/{role_id}", response_model=RoleResponseSchema, status_code=status.HTTP_200_OK
+)
+async def delete_role(
+    role_id: uuid.UUID, role_service: RoleService = Depends(get_role_service)
+):
+    deleted_role = role_service.delete_role(role_id)
 
-    if not role:
-        raise HTTPException(status_code=404, detail="Role not found")
+    if not deleted_role:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Role not found"
+        )
 
-    db.delete(role)
-    db.commit()
-    return role
+    return deleted_role

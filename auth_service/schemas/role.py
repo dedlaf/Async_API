@@ -1,14 +1,23 @@
-from pydantic import UUID4, BaseModel
+import uuid
+
+from pydantic import BaseModel
 
 
-class Role(BaseModel):
-    id: UUID4
+class RoleBaseSchema(BaseModel):
     name: str
 
 
-class RoleUpdate(BaseModel):
-    name: str
+class RoleCreateSchema(RoleBaseSchema): ...
 
 
-class RoleResponse(Role):
-    ...
+class RoleUpdateSchema(RoleBaseSchema): ...
+
+
+class RoleResponseSchema(RoleBaseSchema): ...
+
+
+class RoleSchema(RoleBaseSchema):
+    id: uuid.UUID
+
+    class Config:
+        orm_mode = True

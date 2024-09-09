@@ -3,6 +3,7 @@ fastapi==0.111.0
 gunicorn==23.0.0
 httptools==0.6.1
 pip==23.2.1
+psycopg2-binary==2.9.9
 PyYAML==6.0.2
 setuptools==68.2.0
 uvicorn==0.30.6

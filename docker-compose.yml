@@ -29,7 +29,7 @@ services:
   db_auth:
     image: postgres:latest
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_auth_data:/var/lib/postgresql/data/
       - ./sql_scripts/init_auth.sql:/docker-entrypoint-initdb.d/init_auth.sql
     environment:
       - POSTGRES_DB=user_auth_database
@@ -60,4 +60,5 @@ services:
 
 volumes:
   postgres_data:
+  postgres_auth_data:
   esdata:

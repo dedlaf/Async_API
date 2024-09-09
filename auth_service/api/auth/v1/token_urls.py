@@ -12,16 +12,6 @@ def get_config():
     return Settings()
 
 
-@router.post("/login")
-async def login(user: User, response: Response, tokens: Tokens = Depends(get_tokens)):
-    if user.username != "test" or user.password != "test":
-        raise HTTPException(status_code=401, detail="Bad username or password")
-
-    access_token, refresh_token = await tokens.create(user)
-    await tokens.set_in_cookies(access_token, refresh_token, response)
-    return {"msg": "Successfully logged in"}
-
-
 @router.get("/refresh")
 async def refresh(
     response: Response, user: User = User(), tokens: Tokens = Depends(get_tokens)

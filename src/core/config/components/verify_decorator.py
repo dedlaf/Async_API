@@ -27,6 +27,8 @@ async def check_redis(cookies: dict, headers):
         async with refresh_session.get(
                 "http://nginx:80/api/v1/users/token/validate_token", cookies=cookies, headers=headers
         ) as refresh_response:
+            if refresh_response.status is not HTTPStatus.OK.real:
+                raise HTTPException(status_code=401, detail="Unauthorized")
             return refresh_response.status
 
 def verify_user(func):
@@ -38,27 +40,21 @@ def verify_user(func):
             "access_token_cookie": rq.cookies.get("access_token_cookie"),
             "refresh_token_cookie": rq.cookies.get("refresh_token_cookie"),
         }
-        if await check_redis(cookies, rq.headers) is HTTPStatus.OK.real:
+        await check_redis(cookies, rq.headers)
+        if await check_access_token(cookies) is not HTTPStatus.OK.real:
+            refresh_status, refreshed_cookies = await check_refresh_token(cookies)
+            if refresh_status is HTTPStatus.OK.real:
+                rs.set_cookie(
+                    key="access_token_cookie",
+                    value=refreshed_cookies.get("access_token_cookie").value,
+                )
+                rs.set_cookie(
+                    key="refresh_token_cookie",
+                    value=refreshed_cookies.get("refresh_token_cookie").value,
+                )
+                return await func(*args, **kwargs)
+            raise HTTPException(status_code=401, detail="Unauthorized")
+        return await func(*args, **kwargs)
 
-            if await check_access_token(cookies) is not HTTPStatus.OK.real:
-
-                refresh_status, refreshed_cookies = await check_refresh_token(cookies)
-                if refresh_status is HTTPStatus.OK.real:
-
-                    rs.set_cookie(
-                        key="access_token_cookie",
-                        value=refreshed_cookies.get("access_token_cookie").value,
-                    )
-                    rs.set_cookie(
-                        key="refresh_token_cookie",
-                        value=refreshed_cookies.get("refresh_token_cookie").value,
-                    )
-                    return await func(*args, **kwargs)
-
-                raise HTTPException(status_code=401, detail="Unauthorized")
-
-            return await func(*args, **kwargs)
-
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     return wrapper

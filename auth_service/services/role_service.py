@@ -34,6 +34,9 @@ class RoleService:
     def get_role(self, role_id: uuid.UUID) -> Optional[Role]:
         return self.__db.query(Role).filter(Role.id == role_id).first()
 
+    def get_role_by_name(self, role_name: str) -> Optional[Role]:
+        return self.__db.query(Role).filter(Role.name == role_name).first()
+
     def get_roles(self, skip: int = 0, limit: int = 100) -> list[Role]:
         return self.__db.query(Role).offset(skip).limit(limit).all()
 

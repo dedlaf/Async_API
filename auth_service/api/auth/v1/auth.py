@@ -1,14 +1,18 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Request, Response, status
+from hash import hash_data
 from redis.asyncio import Redis
+from schemas.user import (
+    UserCreateSchema,
+    UserLoginSchema,
+    UserLogoutSchema,
+    UserResponseSchema,
+)
 
 from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
-from hash import hash_data
-from schemas.user import (UserCreateSchema, UserLoginSchema, UserLogoutSchema,
-                          UserResponseSchema)
-from services.user_services import UserService, get_user_service
+from services.user_service import UserService, get_user_service
 
 router = APIRouter()
 
@@ -36,19 +40,19 @@ async def login(
     user_service: UserService = Depends(get_user_service),
     tokens: Tokens = Depends(get_tokens),
 ):
-    user_service.login_user(user.login, user.password)
+    user_service.login_user(user.username, user.password)
 
     user_agent = request.headers.get("user-agent")
     byte_agent = bytes(user_agent, encoding="utf-8")
     access_token, refresh_token = await tokens.create(user)
 
     await redis_client.set(
-        name=f"access_token:{user.login}:{hash_data(byte_agent)}",
+        name=f"access_token:{user.username}:{hash_data(byte_agent)}",
         ex=timedelta(minutes=10),
         value=access_token,
     )
     await redis_client.set(
-        name=f"refresh_token:{user.login}:{hash_data(byte_agent)}",
+        name=f"refresh_token:{user.username}:{hash_data(byte_agent)}",
         ex=timedelta(days=10),
         value=refresh_token,
     )
@@ -67,8 +71,8 @@ async def logout(
     user_agent = request.headers.get("user-agent")
     byte_agent = bytes(user_agent, encoding="utf-8")
 
-    await redis_client.delete(f"access_token:{user.login}:{hash_data(byte_agent)}")
-    await redis_client.delete(f"refresh_token:{user.login}:{hash_data(byte_agent)}")
+    await redis_client.delete(f"access_token:{user.username}:{hash_data(byte_agent)}")
+    await redis_client.delete(f"refresh_token:{user.username}:{hash_data(byte_agent)}")
 
     return user
 
@@ -79,10 +83,10 @@ async def logout_all(
     request: Request,
     redis_client: Redis = Depends(get_redis),
 ):
-    async for key in redis_client.scan_iter(f"access_token:{user.login}:*"):
+    async for key in redis_client.scan_iter(f"access_token:{user.username}:*"):
         await redis_client.delete(key)
 
-    async for key in redis_client.scan_iter(f"refresh_token:{user.login}:*"):
+    async for key in redis_client.scan_iter(f"refresh_token:{user.username}:*"):
         await redis_client.delete(key)
 
     return user

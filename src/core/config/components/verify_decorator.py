@@ -38,8 +38,7 @@ def verify_user(func):
             "access_token_cookie": rq.cookies.get("access_token_cookie"),
             "refresh_token_cookie": rq.cookies.get("refresh_token_cookie"),
         }
-        ans = await check_redis(cookies, rq.headers)
-        if ans is HTTPStatus.OK.real:
+        if await check_redis(cookies, rq.headers) is HTTPStatus.OK.real:
             if await check_access_token(cookies) is not HTTPStatus.OK.real:
                 refresh_status, refreshed_cookies = await check_refresh_token(cookies)
                 if refresh_status is HTTPStatus.OK.real:

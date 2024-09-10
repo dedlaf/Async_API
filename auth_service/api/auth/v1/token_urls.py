@@ -8,7 +8,7 @@ from core.config.components.settings import Settings, User
 from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
 from hash import hash_data
-from services.user_service import UserService, get_user
+from services.user_service import UserService, get_user_service
 
 router = APIRouter()
 
@@ -23,7 +23,7 @@ async def refresh(
     request: Request,
     response: Response,
     tokens: Tokens = Depends(get_tokens),
-    user: UserService = Depends(get_user),
+    user: UserService = Depends(get_user_service),
     redis_client: Redis = Depends(get_redis),
 ):
     user = user.get_user(await tokens.validate_refresh())
@@ -55,7 +55,7 @@ async def check_redis(
     request: Request,
     redis: Redis = Depends(get_redis),
     tokens: Tokens = Depends(get_tokens),
-    user: UserService = Depends(get_user),
+    user: UserService = Depends(get_user_service),
 ):
     refresh_token = request.cookies.get("refresh_token_cookie")
     user = user.get_user(await tokens.validate())

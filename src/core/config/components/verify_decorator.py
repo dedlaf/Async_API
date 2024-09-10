@@ -39,9 +39,12 @@ def verify_user(func):
             "refresh_token_cookie": rq.cookies.get("refresh_token_cookie"),
         }
         if await check_redis(cookies, rq.headers) is HTTPStatus.OK.real:
+
             if await check_access_token(cookies) is not HTTPStatus.OK.real:
+
                 refresh_status, refreshed_cookies = await check_refresh_token(cookies)
                 if refresh_status is HTTPStatus.OK.real:
+
                     rs.set_cookie(
                         key="access_token_cookie",
                         value=refreshed_cookies.get("access_token_cookie").value,
@@ -51,8 +54,11 @@ def verify_user(func):
                         value=refreshed_cookies.get("refresh_token_cookie").value,
                     )
                     return await func(*args, **kwargs)
+
                 raise HTTPException(status_code=401, detail="Unauthorized")
+
             return await func(*args, **kwargs)
+
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     return wrapper

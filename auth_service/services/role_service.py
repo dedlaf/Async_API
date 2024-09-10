@@ -2,12 +2,12 @@ import uuid
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
-from schemas.role import RoleCreateSchema, RoleUpdateSchema
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from db.models import Role
 from db.session import get_db
+from schemas.role import RoleCreateSchema, RoleUpdateSchema
 
 
 class RoleService:
@@ -33,6 +33,9 @@ class RoleService:
 
     def get_role(self, role_id: uuid.UUID) -> Optional[Role]:
         return self.__db.query(Role).filter(Role.id == role_id).first()
+
+    def get_role_by_name(self, role_name: str) -> Optional[Role]:
+        return self.__db.query(Role).filter(Role.name == role_name).first()
 
     def get_roles(self, skip: int = 0, limit: int = 100) -> list[Role]:
         return self.__db.query(Role).offset(skip).limit(limit).all()

@@ -28,6 +28,11 @@ class LoginHistoryService:
                 detail=f"An error occurred while creating the login history: {e}",
             )
 
+    def get_login_history(self, user_id: uuid.UUID) -> list[LoginHistory]:
+        return (
+            self.__db.query(LoginHistory).filter(LoginHistory.user_id == user_id).all()
+        )
+
 
 def get_login_history_service(db: Session = Depends(get_db)) -> LoginHistoryService:
     return LoginHistoryService(db)

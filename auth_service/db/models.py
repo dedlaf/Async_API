@@ -36,6 +36,6 @@ class LoginHistory(Base):
     __table_args__ = {"schema": "auth"}
 
     user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    logged_time = Column(DateTime, default=datetime.utcnow, nullable=False)
+    logged_date = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", backref="login_histories")

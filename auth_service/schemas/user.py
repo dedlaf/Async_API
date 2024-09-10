@@ -1,3 +1,6 @@
+import uuid
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -18,3 +21,16 @@ class UserLogoutSchema(UserBaseSchema): ...
 
 
 class UserResponseSchema(UserBaseSchema): ...
+
+
+class RoleAssignationRequestSchema(BaseModel):
+    user_id: uuid.UUID
+    role_name: str
+
+
+class RoleRevocationRequestSchema(BaseModel):
+    user_id: uuid.UUID
+
+
+class UserLoginHistoryResponseSchema(BaseModel):
+    date: list[datetime]

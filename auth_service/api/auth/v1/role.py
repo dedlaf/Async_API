@@ -1,8 +1,8 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas.role import RoleCreateSchema, RoleResponseSchema, RoleUpdateSchema
 
+from schemas.role import RoleCreateSchema, RoleResponseSchema, RoleUpdateSchema
 from services.role_service import RoleService, get_role_service
 
 router = APIRouter()

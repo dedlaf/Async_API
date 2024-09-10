@@ -3,15 +3,15 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, Request, Response, status
 from hash import hash_data
 from redis.asyncio import Redis
+
+from core.config.components.token_conf import Tokens, get_tokens
+from db.redis import get_redis
 from schemas.user import (
     UserCreateSchema,
     UserLoginSchema,
     UserLogoutSchema,
     UserResponseSchema,
 )
-
-from core.config.components.token_conf import Tokens, get_tokens
-from db.redis import get_redis
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()

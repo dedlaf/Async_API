@@ -13,6 +13,10 @@ class Tokens:
         await self.auth.jwt_required()
         return await self.auth.get_jwt_subject()
 
+    async def validate_refresh(self):
+        await self.auth.jwt_refresh_token_required()
+        return await self.auth.get_jwt_subject()
+
     async def create(self, user):
         access_token = await self.auth.create_access_token(
             subject=user.username, expires_time=timedelta(minutes=10)
@@ -32,7 +36,8 @@ class Tokens:
 
         access_token, refresh_token = await self.create(user)
         await self.set_in_cookies(access_token, refresh_token, response)
-        return {"msg": "Successfully logged in"}
+
+        return access_token, refresh_token
 
 
 auth_dep = AuthJWTBearer()

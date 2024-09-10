@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 
-from api.auth.v1 import role, token_urls, auth
+from api.auth.v1 import auth, role, token_urls
 from core.config.components import settings
 from db import redis
 

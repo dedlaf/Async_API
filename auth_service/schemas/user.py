@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class UserBaseSchema(BaseModel):
-    login: str
+    username: str
 
 
 class UserCreateSchema(UserBaseSchema):

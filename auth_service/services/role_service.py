@@ -2,12 +2,12 @@ import uuid
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
-from schemas.role import RoleCreateSchema, RoleUpdateSchema
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from db.models import Role
 from db.session import get_db
+from schemas.role import RoleCreateSchema, RoleUpdateSchema
 
 
 class RoleService:

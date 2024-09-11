@@ -20,7 +20,6 @@ class User(Base):
     role_id = Column(UUID, ForeignKey("auth.role.id"), nullable=True)
 
     role = relationship("Role", backref="users")
-    login_histories = relationship("LoginHistory", backref="users")
 
 
 class Role(Base):
@@ -32,10 +31,11 @@ class Role(Base):
 
 
 class LoginHistory(Base):
-    __tablename__ = "loging_history"
+    __tablename__ = "login_history"
     __table_args__ = {"schema": "auth"}
 
-    user_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id = Column(UUID, ForeignKey("auth.user.id"), nullable=True)
     logged_date = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     user = relationship("User", backref="login_histories")

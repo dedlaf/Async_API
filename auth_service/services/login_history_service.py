@@ -14,7 +14,7 @@ class LoginHistoryService:
 
     def save_login_history(self, user_id: uuid.UUID) -> None:
         try:
-            login_history = LoginHistory(user_id)
+            login_history = LoginHistory(user_id=user_id)
 
             self.__db.add(login_history)
             self.__db.commit()

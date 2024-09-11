@@ -4,8 +4,8 @@ from typing import Any
 import pytest
 from redis import Redis
 
-from ..conftest import bulk_query_persons
-from ..settings import test_settings
+from .conftest import bulk_query_persons
+from .settings import test_settings
 
 pytestmark = pytest.mark.asyncio
 

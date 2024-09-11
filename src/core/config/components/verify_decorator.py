@@ -22,7 +22,6 @@ async def check_refresh_token(cookies: dict):
             return refresh_response.status, refresh_response.cookies
 
 async def check_redis(cookies: dict, headers):
-    print(cookies)
     async with aiohttp.ClientSession() as refresh_session:
         async with refresh_session.get(
                 "http://nginx:80/api/v1/users/token/validate_token", cookies=cookies, headers=headers

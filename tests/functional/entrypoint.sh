@@ -3,6 +3,7 @@
 # Запуск main.py
 python utils/main.py
 
-# Запуск тестов
-pytest ./src
+
+#pytest ./src/tests_films_api
+pytest ./src/tests_api_registr
 

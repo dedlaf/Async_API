@@ -5,6 +5,11 @@ services:
     image: fastapi-image
     ports:
       - 8000:8000
+  auth:
+    build:
+      context: ../../auth_service
+    expose:
+      - 8070
   nginx:
     image: nginx:latest
     volumes:
@@ -22,6 +27,17 @@ services:
       - ../../.env
     expose:
       - 5432
+  db_auth:
+    image: postgres:latest
+    volumes:
+      - postgres_auth_data:/var/lib/postgresql/data/
+      - ../../sql_scripts/init_auth.sql:/docker-entrypoint-initdb.d/init_auth.sql
+    environment:
+      - POSTGRES_DB=user_auth_database
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=123qwe
+    ports:
+      - 5432:5432
   elasticsearch:
     image: elasticsearch:8.8.0
     volumes:
@@ -43,12 +59,15 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - elasticsearch
       - redis
+      - auth
+      - db_auth
+      - elasticsearch
     ports:
       - 7878:7878
 
 
 volumes:
   postgres_data:
+  postgres_auth_data:
   esdata:

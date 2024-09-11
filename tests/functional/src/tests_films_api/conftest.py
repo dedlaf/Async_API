@@ -11,7 +11,7 @@ from .settings import test_settings
 
 fake_data = FakeData()
 bulk_query_movies, bulk_query_genres, bulk_query_persons = fake_data.transform_to_es(
-    *fake_data.generate_data(100)
+    *fake_data.generate_data(30)
 )
 
 

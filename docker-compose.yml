@@ -32,9 +32,9 @@ services:
       - postgres_auth_data:/var/lib/postgresql/data/
       - ./sql_scripts/init_auth.sql:/docker-entrypoint-initdb.d/init_auth.sql
     environment:
-      - POSTGRES_DB=user_auth_database
-      - POSTGRES_USER=app
-      - POSTGRES_PASSWORD=123qwe
+      - POSTGRES_DB=${POSTGRES_AUTH_DB}
+      - POSTGRES_USER=${POSTGRES_AUTH_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_AUTH_PASSWORD}
     expose:
       - 5432
   elasticsearch:
@@ -46,13 +46,13 @@ services:
       - xpack.security.enabled=false
     expose:
       - 9200
-  #etl:
-  #  build:
-  #    context: ./etl
-  #  env_file:
-  #    - ./etl/.env
-  #  depends_on:
-  #    - elasticsearch
+  etl:
+    build:
+      context: ./etl
+    env_file:
+      - ./etl/.env
+    depends_on:
+      - elasticsearch
   redis:
     image: redis:alpine
     expose:

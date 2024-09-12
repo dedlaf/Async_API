@@ -9,7 +9,7 @@ from fastapi import HTTPException, Request, Response, Header
 async def check_access_token(cookies: dict):
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            "http://nginx:80/api/v1/users/token/user", cookies=cookies
+            "http://nginx:80/auth/token/user", cookies=cookies
         ) as response:
             return response.status
 
@@ -17,14 +17,14 @@ async def check_access_token(cookies: dict):
 async def check_refresh_token(cookies: dict):
     async with aiohttp.ClientSession() as refresh_session:
         async with refresh_session.get(
-            "http://nginx:80/api/v1/users/token/refresh", cookies=cookies
+            "http://nginx:80/auth/token/refresh", cookies=cookies
         ) as refresh_response:
             return refresh_response.status, refresh_response.cookies
 
 async def check_redis(cookies: dict, headers):
     async with aiohttp.ClientSession() as refresh_session:
         async with refresh_session.get(
-                "http://nginx:80/api/v1/users/token/validate_token", cookies=cookies, headers=headers
+                "http://nginx:80/auth/token/validate_token", cookies=cookies, headers=headers
         ) as refresh_response:
             if refresh_response.status is not HTTPStatus.OK.real:
                 raise HTTPException(status_code=401, detail="Unauthorized")

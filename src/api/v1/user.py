@@ -13,5 +13,5 @@ router = APIRouter()
 @verify_user
 async def get_history(user_id: uuid.UUID ) -> UserLoginHistoryResponseSchema:
     async with aiohttp.ClientSession() as session:
-        async with session.get(f"http://nginx:80/api/v1/users/history/{user_id}") as response:
+        async with session.get(f"http://nginx:80/auth/history/{user_id}") as response:
             return UserLoginHistoryResponseSchema(response.content.date)

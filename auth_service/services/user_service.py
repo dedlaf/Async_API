@@ -61,7 +61,7 @@ class UserService:
 
     def assign_role(self, user: User, role: Role) -> User:
         try:
-            user.role_id = role
+            user.role_id = role.id
             self.__db.commit()
             self.__db.refresh(user)
         except SQLAlchemyError as e:
@@ -88,4 +88,3 @@ class UserService:
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
     return UserService(db)
-

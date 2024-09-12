@@ -7,6 +7,7 @@ from schemas.user import (
     RoleAssignationRequestSchema,
     RoleRevocationRequestSchema,
     UserLoginHistoryResponseSchema,
+    UserResponseSchema,
 )
 from services.login_history_service import (
     LoginHistoryService,
@@ -23,7 +24,7 @@ router = APIRouter()
     response_model=UserLoginHistoryResponseSchema,
     status_code=status.HTTP_200_OK,
 )
-async def get_role(
+async def get_history(
     user_id: uuid.UUID,
     login_history_service: LoginHistoryService = Depends(get_login_history_service),
 ):
@@ -35,7 +36,9 @@ async def get_role(
     return response
 
 
-@router.put("/role/assign", response_model=User, status_code=status.HTTP_200_OK)
+@router.put(
+    "/role/assign", response_model=UserResponseSchema, status_code=status.HTTP_200_OK
+)
 async def assign_role(
     role_assignation: RoleAssignationRequestSchema,
     role_service: RoleService = Depends(get_role_service),
@@ -60,8 +63,10 @@ async def assign_role(
     return user
 
 
-@router.put("/role/revoke", response_model=User, status_code=status.HTTP_200_OK)
-async def assign_role(
+@router.put(
+    "/role/revoke", response_model=UserResponseSchema, status_code=status.HTTP_200_OK
+)
+async def revoke_role(
     role_assignation: RoleRevocationRequestSchema,
     user_service: UserService = Depends(get_user_service),
 ):

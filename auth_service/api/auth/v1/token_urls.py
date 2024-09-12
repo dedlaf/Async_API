@@ -2,12 +2,12 @@ from datetime import timedelta
 
 from async_fastapi_jwt_auth import AuthJWT
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from hash import hash_data
 from redis.asyncio import Redis
 
 from core.config.components.settings import Settings, User
 from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
-from hash import hash_data
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()
@@ -61,7 +61,9 @@ async def check_redis(
     user = user.get_user_by_username(await tokens.validate())
     user_agent = request.headers.get("user-agent")
     byte_agent = bytes(user_agent, encoding="utf-8")
-    rf_in_redis = await redis.get(f"refresh_token:{user.username}:{hash_data(byte_agent)}")
+    rf_in_redis = await redis.get(
+        f"refresh_token:{user.username}:{hash_data(byte_agent)}"
+    )
     if rf_in_redis:
         if rf_in_redis.decode() == str(refresh_token):
             return {"msg": "Successfully validation"}

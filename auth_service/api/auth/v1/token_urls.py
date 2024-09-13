@@ -49,9 +49,12 @@ async def refresh(
 
 
 @router.get("/user", summary="Get user from tokens")
-async def user(tokens: Tokens = Depends(get_tokens)):
+async def user(tokens: Tokens = Depends(get_tokens), user: UserService = Depends(get_user_service)):
     current_user = await tokens.validate()
-    return {"user": current_user} if current_user is not None else 404
+    print(current_user)
+    print(type(current_user))
+    current_user = user.get_user_by_username(current_user)
+    return {"user": current_user.username, "role_id": current_user.role_id} if current_user is not None else 404
 
 
 @router.get(

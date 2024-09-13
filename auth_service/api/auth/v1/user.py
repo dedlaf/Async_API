@@ -2,7 +2,6 @@ import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from db.models import User
 from schemas.user import (
     RoleAssignationRequestSchema,
     RoleRevocationRequestSchema,
@@ -26,9 +25,13 @@ router = APIRouter()
 )
 async def get_history(
     user_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
     login_history_service: LoginHistoryService = Depends(get_login_history_service),
 ):
-    login_history = login_history_service.get_login_history(user_id)
+    login_history = login_history_service.get_login_history(
+        user_id, skip=skip, limit=limit
+    )
     logged_date = [history.logged_date for history in login_history]
 
     response = UserLoginHistoryResponseSchema(date=logged_date)
@@ -78,5 +81,20 @@ async def revoke_role(
         )
 
     user = user_service.revoke_role(user)
+
+    return user
+
+
+@router.delete("/", response_model=UserResponseSchema, status_code=status.HTTP_200_OK)
+async def delete_user(
+    user_id: uuid.UUID,
+    user_service: UserService = Depends(get_user_service),
+):
+    user = user_service.delete_user(user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     return user

@@ -6,22 +6,24 @@ from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
 
 from api.auth.v1 import auth, role, token_urls, user
-from core.config.components import settings
+from core.config.components.settings import Settings
 from db import redis
+
+settings = Settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    redis.redis = Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+    redis.redis = Redis(host=settings.redis_host, port=settings.redis_port)
 
     yield
     await redis.redis.close()
 
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    docs_url="/api/v1/users/openapi",
-    openapi_url="/api/v1/users/openapi.json",
+    title=settings.project_name,
+    docs_url="/auth/openapi",
+    openapi_url="/auth/openapi.json",
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )

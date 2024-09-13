@@ -44,6 +44,23 @@ class UserService:
     def get_user(self, user_id: uuid.UUID) -> User:
         return self.__db.query(User).filter(User.id == user_id).first()
 
+    def delete_user(self, user_id: uuid.UUID) -> User:
+        try:
+            user = self.get_user(user_id)
+
+            if user:
+                self.__db.delete(user)
+                self.__db.commit()
+
+            return user
+        except SQLAlchemyError as e:
+            self.__db.rollback()
+
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"An error occurred while deleting user: {e}",
+            )
+
     def login_user(self, username: str, password: str) -> User:
         user = self.get_user_by_username(username)
         password = verify_password(password, user.password)

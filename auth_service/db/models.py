@@ -20,6 +20,9 @@ class User(Base):
     role_id = Column(UUID, ForeignKey("auth.role.id"), nullable=True)
 
     role = relationship("Role", backref="users")
+    login_histories = relationship(
+        "LoginHistory", back_populates="user", cascade="delete, merge, save-update"
+    )
 
 
 class Role(Base):
@@ -35,7 +38,7 @@ class LoginHistory(Base):
     __table_args__ = {"schema": "auth"}
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID, ForeignKey("auth.user.id"), nullable=True)
+    user_id = Column(UUID, ForeignKey("auth.user.id"), nullable=False)
     logged_date = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    user = relationship("User", backref="login_histories")
+    user = relationship("User", back_populates="login_histories")

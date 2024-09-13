@@ -18,7 +18,11 @@ def get_config():
     return Settings()
 
 
-@router.get("/refresh")
+@router.get(
+    "/refresh",
+    summary="Update refresh and access tokens",
+    description="Get refresh token from cookies. If token is valid, update access and refresh tokens pair, else return Unauthorized",
+)
 async def refresh(
     request: Request,
     response: Response,
@@ -44,13 +48,17 @@ async def refresh(
     return {"msg": "Successfully logged in"}
 
 
-@router.get("/user")
+@router.get("/user", summary="Get user from tokens")
 async def user(tokens: Tokens = Depends(get_tokens)):
     current_user = await tokens.validate()
     return {"user": current_user} if current_user is not None else 404
 
 
-@router.get("/validate_token")
+@router.get(
+    "/validate_token",
+    summary="Check for tokens in redis",
+    description="Get refresh token, then check if this token exists in redis. If token does not exist return Unauthorized, else return Success",
+)
 async def check_redis(
     request: Request,
     redis: Redis = Depends(get_redis),

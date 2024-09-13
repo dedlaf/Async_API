@@ -18,7 +18,10 @@ router = APIRouter()
 
 
 @router.post(
-    "/register", response_model=UserResponseSchema, status_code=status.HTTP_201_CREATED
+    "/register",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create new user",
 )
 async def register(
     user: UserCreateSchema, user_service: UserService = Depends(get_user_service)
@@ -30,7 +33,11 @@ async def register(
 
 
 @router.post(
-    "/login", response_model=UserResponseSchema, status_code=status.HTTP_200_OK
+    "/login",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Log in to user account",
+    description="Create new user session. Create new access and refresh tokens",
 )
 async def login(
     user: UserLoginSchema,
@@ -62,7 +69,11 @@ async def login(
     return user
 
 
-@router.post("/logout")
+@router.post(
+    "/logout",
+    summary="Log out of this user session",
+    description="Delete access and refresh tokens of this session",
+)
 async def logout(
     user: UserLogoutSchema,
     request: Request,
@@ -77,7 +88,11 @@ async def logout(
     return user
 
 
-@router.post("/logout_all")
+@router.post(
+    "/logout_all",
+    summary="Log out of all user sessions",
+    description="Delete all user's access and refresh tokens",
+)
 async def logout_all(
     user: UserLogoutSchema,
     request: Request,

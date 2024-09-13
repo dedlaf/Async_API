@@ -22,6 +22,7 @@ router = APIRouter()
     "/history/{user_id}",
     response_model=UserLoginHistoryResponseSchema,
     status_code=status.HTTP_200_OK,
+    summary="Get login history of user",
 )
 async def get_history(
     user_id: uuid.UUID,
@@ -40,7 +41,10 @@ async def get_history(
 
 
 @router.put(
-    "/role/assign", response_model=UserResponseSchema, status_code=status.HTTP_200_OK
+    "/role/assign",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Assign role to user",
 )
 async def assign_role(
     role_assignation: RoleAssignationRequestSchema,
@@ -67,7 +71,10 @@ async def assign_role(
 
 
 @router.put(
-    "/role/revoke", response_model=UserResponseSchema, status_code=status.HTTP_200_OK
+    "/role/revoke",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Revoke role of user",
 )
 async def revoke_role(
     role_assignation: RoleRevocationRequestSchema,
@@ -85,7 +92,12 @@ async def revoke_role(
     return user
 
 
-@router.delete("/", response_model=UserResponseSchema, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Delete user",
+)
 async def delete_user(
     user_id: uuid.UUID,
     user_service: UserService = Depends(get_user_service),

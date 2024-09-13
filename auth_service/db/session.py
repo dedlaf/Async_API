@@ -16,3 +16,7 @@ def get_db() -> Session:
         yield db
     finally:
         db.close()
+
+
+def get_db_function() -> Session:
+    return SessionLocal()

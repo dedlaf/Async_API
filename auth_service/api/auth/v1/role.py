@@ -9,7 +9,10 @@ router = APIRouter()
 
 
 @router.post(
-    "/", response_model=RoleResponseSchema, status_code=status.HTTP_201_CREATED
+    "/",
+    response_model=RoleResponseSchema,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create new role",
 )
 async def create_role(
     role: RoleCreateSchema, role_service: RoleService = Depends(get_role_service)
@@ -20,7 +23,10 @@ async def create_role(
 
 
 @router.get(
-    "/{role_id}", response_model=RoleResponseSchema, status_code=status.HTTP_200_OK
+    "/{role_id}",
+    response_model=RoleResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Get a specific role",
 )
 async def get_role(
     role_id: uuid.UUID, role_service: RoleService = Depends(get_role_service)
@@ -36,7 +42,10 @@ async def get_role(
 
 
 @router.get(
-    "/", response_model=list[RoleResponseSchema], status_code=status.HTTP_200_OK
+    "/",
+    response_model=list[RoleResponseSchema],
+    status_code=status.HTTP_200_OK,
+    summary="Get all roles",
 )
 async def get_roles(
     skip: int = 0,
@@ -49,7 +58,10 @@ async def get_roles(
 
 
 @router.put(
-    "/{role_id}", response_model=RoleResponseSchema, status_code=status.HTTP_200_OK
+    "/{role_id}",
+    response_model=RoleResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Update a specific role",
 )
 async def update_role(
     role_id: uuid.UUID,
@@ -67,7 +79,10 @@ async def update_role(
 
 
 @router.delete(
-    "/{role_id}", response_model=RoleResponseSchema, status_code=status.HTTP_200_OK
+    "/{role_id}",
+    response_model=RoleResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Delete a specific role",
 )
 async def delete_role(
     role_id: uuid.UUID, role_service: RoleService = Depends(get_role_service)

@@ -1,12 +1,17 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from redis.asyncio import Redis
 
+from core.config.components.token_conf import Tokens, get_tokens
+from db.redis import get_redis
+from hash import hash_data
 from schemas.user import (
     RoleAssignationRequestSchema,
     RoleRevocationRequestSchema,
     UserLoginHistoryResponseSchema,
     UserResponseSchema,
+    UsersRoleRequestSchema,
 )
 from services.login_history_service import (
     LoginHistoryService,
@@ -90,6 +95,52 @@ async def revoke_role(
     user = user_service.revoke_role(user)
 
     return user
+
+
+@router.post(
+    "/role/has_role",
+    response_model=UserResponseSchema,
+    status_code=status.HTTP_200_OK,
+    summary="Check role of user",
+)
+async def has_role(
+        request: Request,
+        role_assignation: UsersRoleRequestSchema,
+        redis: Redis = Depends(get_redis),
+        tokens: Tokens = Depends(get_tokens),
+        role_service: RoleService = Depends(get_role_service),
+        user_service: UserService = Depends(get_user_service),
+):
+    access_token = request.cookies.get('access_token_cookie')
+
+    curr_user = await tokens.get_sub(access_token)
+
+    if not curr_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authorized"
+        )
+
+    user_agent = request.headers.get("user-agent")
+    byte_agent = bytes(user_agent, encoding="utf-8")
+    storage_token = await redis.get(f"access_token:{curr_user}:{hash_data(byte_agent)}")
+
+    if not storage_token or (storage_token.decode() != str(access_token)):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authorized"
+        )
+
+    user = user_service.get_user_by_username(curr_user)
+    role = role_service.get_role_by_name(role_assignation.role_name)
+
+    if user and role and user_service.has_role(user, role):
+        return user
+    else:
+        return HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Not needed role"
+        )
 
 
 @router.delete(

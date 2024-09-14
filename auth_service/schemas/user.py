@@ -28,6 +28,10 @@ class RoleAssignationRequestSchema(BaseModel):
     role_name: str
 
 
+class UsersRoleRequestSchema(BaseModel):
+    role_name: str
+
+
 class RoleRevocationRequestSchema(BaseModel):
     user_id: uuid.UUID
 

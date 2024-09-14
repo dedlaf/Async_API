@@ -21,6 +21,7 @@ async def check_refresh_token(cookies: dict):
         ) as refresh_response:
             return refresh_response.status, refresh_response.cookies
 
+
 async def check_redis(cookies: dict, headers):
     async with aiohttp.ClientSession() as refresh_session:
         async with refresh_session.get(
@@ -29,6 +30,17 @@ async def check_redis(cookies: dict, headers):
             if refresh_response.status is not HTTPStatus.OK.real:
                 raise HTTPException(status_code=401, detail="Unauthorized")
             return refresh_response.status
+
+
+async def has_user_role(cookies: dict, headers):
+    async with aiohttp.ClientSession() as has_role_session:
+        async with has_role_session.get(
+                "http://nginx:80/auth/user/role/has_role", cookies=cookies, headers=headers
+        ) as has_role_response:
+            if has_role_response.status is not HTTPStatus.OK.real:
+                raise HTTPException(status_code=401, detail="Unauthorized")
+            return has_role_response.status
+
 
 def verify_user(func):
     @wraps(func)
@@ -61,5 +73,28 @@ def verify_user(func):
 
         return await func(*args, **kwargs)
 
+
+    return wrapper
+
+
+def has_role(func):
+    @wraps(func)
+    async def wrapper(*args, **kwargs):
+        rq: Request = kwargs.get("request")
+        rs: Response = kwargs.get("response")
+        cookies = {
+            "access_token_cookie": rq.cookies.get("access_token_cookie"),
+            "refresh_token_cookie": rq.cookies.get("refresh_token_cookie"),
+        }
+
+        rs_status = await has_user_role(cookies, rq.headers)
+
+        if not rs_status is HTTPStatus.OK.real:
+            raise HTTPException(
+                status_code=404,
+                detail="Role not found",
+            )
+
+        return await func(*args, **kwargs)
 
     return wrapper

@@ -5,7 +5,6 @@ import aiohttp
 from fastapi import HTTPException, Request, Response, Header
 
 
-
 async def check_access_token(cookies: dict):
     async with aiohttp.ClientSession() as session:
         async with session.get(
@@ -20,6 +19,7 @@ async def check_refresh_token(cookies: dict):
             "http://nginx:80/auth/token/refresh", cookies=cookies
         ) as refresh_response:
             return refresh_response.status, refresh_response.cookies
+
 
 async def check_redis(cookies: dict, headers):
     async with aiohttp.ClientSession() as refresh_session:

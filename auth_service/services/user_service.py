@@ -102,6 +102,11 @@ class UserService:
 
         return user
 
+    def has_role(self, user: User, role: Role) -> bool:
+        return self.__db.query(User).join(User.role).filter(
+            User.id == user.id,
+            Role.name == role.name).first() is not None
+
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:
     return UserService(db)

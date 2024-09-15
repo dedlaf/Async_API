@@ -2,8 +2,7 @@ from functools import wraps
 from http import HTTPStatus
 
 import aiohttp
-from fastapi import HTTPException, Request, Response, Header
-
+from fastapi import HTTPException, Request, Response
 
 
 async def check_access_token(cookies: dict):

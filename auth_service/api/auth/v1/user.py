@@ -3,6 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from redis.asyncio import Redis
 
+from core.config.components.role_decorator import has_admin
 from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
 from hash import hash_data
@@ -51,7 +52,9 @@ async def get_history(
     status_code=status.HTTP_200_OK,
     summary="Assign role to user",
 )
+@has_admin
 async def assign_role(
+    request: Request,
     role_assignation: RoleAssignationRequestSchema,
     role_service: RoleService = Depends(get_role_service),
     user_service: UserService = Depends(get_user_service),
@@ -81,7 +84,9 @@ async def assign_role(
     status_code=status.HTTP_200_OK,
     summary="Revoke role of user",
 )
+@has_admin
 async def revoke_role(
+    request: Request,
     role_assignation: RoleRevocationRequestSchema,
     user_service: UserService = Depends(get_user_service),
 ):
@@ -149,7 +154,9 @@ async def has_role(
     status_code=status.HTTP_200_OK,
     summary="Delete user",
 )
+@has_admin
 async def delete_user(
+    request: Request,
     user_id: uuid.UUID,
     user_service: UserService = Depends(get_user_service),
 ):

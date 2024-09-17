@@ -46,6 +46,10 @@ class Tokens:
         else:
             return None
 
+    async def decode_token(self, token):
+        decoded_token = await self.auth.get_raw_jwt(token)
+        return decoded_token
+
 
 
 auth_dep = AuthJWTBearer()

@@ -1,14 +1,14 @@
 import jwt
 from functools import wraps
 
-from fastapi import HTTPException, Request, status, Depends
+from fastapi import HTTPException, Request, status
 
 from db.redis import get_redis
 from db.session import get_db_function
 from hash import hash_data
 from services.role_service import RoleService
 from services.user_service import UserService
-
+from .token_conf import auth_dep, Tokens
 
 def has_admin(func):
     @wraps(func)
@@ -18,16 +18,16 @@ def has_admin(func):
         user_service = UserService(get_db_function())
         role_service = RoleService(get_db_function())
         access_token = request.cookies.get('access_token_cookie')
+        tokens = Tokens(auth_dep())
 
         # TODO refresh token
         try:
-            decode_token = jwt.decode(access_token, "secret", algorithms=["HS256"])
-        except :
+            decode_token = await tokens.decode_token(access_token)
+        except:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token expired"
             )
-
         if not decode_token.get("sub"):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,

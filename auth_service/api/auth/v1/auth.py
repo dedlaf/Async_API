@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.responses import RedirectResponse
 from hash import hash_data
 from redis.asyncio import Redis
 
@@ -13,9 +14,18 @@ from schemas.user import (
     UserResponseSchema,
 )
 from services.user_service import UserService, get_user_service
+from requests_oauthlib import OAuth2Session
+import requests
+import random
+import string
+
 
 router = APIRouter()
 
+def generate_password(length=12):
+    characters = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(random.choice(characters) for _ in range(length))
+    return password
 
 @router.post(
     "/register",
@@ -105,3 +115,55 @@ async def logout_all(
         await redis_client.delete(key)
 
     return user
+
+
+@router.get("/login-yandex")
+async def login_yandex(
+    response: Response,
+
+):
+    client_id = ''
+    redirect_uri = 'http://localhost/auth/callback-oauth'
+
+    yandex = OAuth2Session(client_id, redirect_uri=redirect_uri)
+
+    authorization_url, state = yandex.authorization_url('https://oauth.yandex.ru/authorize')
+
+    return RedirectResponse(authorization_url)
+
+@router.get("/callback-oauth")
+async def callback_oauth(
+    code: str,
+    user_service: UserService = Depends(get_user_service)
+):
+    client_id = ''
+    client_secret = ''
+    redirect_uri = 'http://localhost/api/v1/films'
+    token_url = 'https://oauth.yandex.ru/token'
+    payload = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri
+    }
+    response = requests.post(token_url, data=payload)
+
+    token = response.json().get("access_token")
+    url = "https://login.yandex.ru/info?format=json"
+
+    headers = {"Authorization": f"OAuth {token}"}
+    response = requests.get(url, headers=headers)
+
+    response_json = response.json()
+    username = response_json.get("login")
+    email = "email"
+    password = generate_password()
+    user = UserCreateSchema(username=username, email=email, password=hash_data(password.encode()))
+    try:
+        user_service.create_user(user)
+    except:
+        return RedirectResponse('http://localhost/auth/films')
+
+
+    return {"username: ": username, "email: ": email, "password": password}

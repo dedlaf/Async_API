@@ -1,3 +1,5 @@
+import os
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,3 +19,11 @@ class Settings(BaseSettings):
     db_password: str
     db_host: str
     db_port: int
+
+    yandex_client_id: str
+    yandex_client_secret: str
+
+
+settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

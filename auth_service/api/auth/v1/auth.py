@@ -1,11 +1,12 @@
 from datetime import timedelta
-
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.responses import RedirectResponse
+from fastapi.exceptions import HTTPException
 from hash import hash_data
 from redis.asyncio import Redis
 
 from core.config.components.token_conf import Tokens, get_tokens
+from core.config.components.settings import settings
 from db.redis import get_redis
 from schemas.user import (
     UserCreateSchema,
@@ -18,14 +19,26 @@ from requests_oauthlib import OAuth2Session
 import requests
 import random
 import string
-
+import aiohttp
 
 router = APIRouter()
 
-def generate_password(length=12):
-    characters = string.ascii_letters + string.digits + string.punctuation
-    password = ''.join(random.choice(characters) for _ in range(length))
-    return password
+
+async def post_login_request(username: str, password: str, rs: Response) -> None:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "http://nginx:80/auth/login",
+            json={"username": username, "password": password},
+        ) as response:
+            rs.set_cookie(
+                key="access_token_cookie",
+                value=response.cookies.get("access_token_cookie").value,
+            )
+            rs.set_cookie(
+                key="refresh_token_cookie",
+                value=response.cookies.get("refresh_token_cookie").value,
+            )
+
 
 @router.post(
     "/register",
@@ -57,6 +70,7 @@ async def login(
     user_service: UserService = Depends(get_user_service),
     tokens: Tokens = Depends(get_tokens),
 ):
+    print(user)
     user_service.login_user(user.username, user.password)
 
     user_agent = request.headers.get("user-agent")
@@ -118,52 +132,39 @@ async def logout_all(
 
 
 @router.get("/login-yandex")
-async def login_yandex(
-    response: Response,
-
-):
-    client_id = ''
-    redirect_uri = 'http://localhost/auth/callback-oauth'
-
-    yandex = OAuth2Session(client_id, redirect_uri=redirect_uri)
-
-    authorization_url, state = yandex.authorization_url('https://oauth.yandex.ru/authorize')
-
+async def login_yandex():
+    yandex = OAuth2Session(settings.yandex_client_id)
+    authorization_url, _ = yandex.authorization_url("https://oauth.yandex.ru/authorize")
     return RedirectResponse(authorization_url)
+
 
 @router.get("/callback-oauth")
 async def callback_oauth(
-    code: str,
-    user_service: UserService = Depends(get_user_service)
+    rs: Response, code: str, user_service: UserService = Depends(get_user_service)
 ):
-    client_id = ''
-    client_secret = ''
-    redirect_uri = 'http://localhost/api/v1/films'
-    token_url = 'https://oauth.yandex.ru/token'
-    payload = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'client_id': client_id,
-        'client_secret': client_secret,
-        'redirect_uri': redirect_uri
+    yandex_data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": settings.yandex_client_id,
+        "client_secret": settings.yandex_client_secret,
     }
-    response = requests.post(token_url, data=payload)
+    yandex_token_response = requests.post("https://oauth.yandex.ru/token", data=yandex_data)
+    yandex_access_token = yandex_token_response.json().get("access_token")
 
-    token = response.json().get("access_token")
-    url = "https://login.yandex.ru/info?format=json"
+    yandex_user_info_headers = {"Authorization": f"OAuth {yandex_access_token}"}
+    yandex_user_info_response = requests.get(
+        "https://login.yandex.ru/info?format=json", headers=yandex_user_info_headers
+    )
 
-    headers = {"Authorization": f"OAuth {token}"}
-    response = requests.get(url, headers=headers)
-
-    response_json = response.json()
-    username = response_json.get("login")
+    username = yandex_user_info_response.json().get("login")
     email = "email"
-    password = generate_password()
+    password = yandex_user_info_response.json().get("psuid") + yandex_user_info_response.json().get("id")
     user = UserCreateSchema(username=username, email=email, password=hash_data(password.encode()))
+
     try:
         user_service.create_user(user)
-    except:
-        return RedirectResponse('http://localhost/auth/films')
-
-
-    return {"username: ": username, "email: ": email, "password": password}
+        await post_login_request(username, password, rs)
+        return "Successfully logged in"
+    except HTTPException:
+        await post_login_request(username, password, rs)
+        return "Successfully logged in"

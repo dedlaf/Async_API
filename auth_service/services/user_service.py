@@ -61,13 +61,13 @@ class UserService:
                 detail=f"An error occurred while deleting user: {e}",
             )
 
-    def login_user(self, username: str, password: str) -> User:
+    def login_user(self, username: str, password: str, user_agent: str) -> User:
         user = self.get_user_by_username(username)
         password = verify_password(password, user.password)
 
         if user and password:
             login_history_service = LoginHistoryService(self.__db)
-            login_history_service.save_login_history(user.id)
+            login_history_service.save_login_history(user.id, user_agent)
 
             return user
 
@@ -103,9 +103,13 @@ class UserService:
         return user
 
     def has_role(self, user: User, role: Role) -> bool:
-        return self.__db.query(User).join(User.role).filter(
-            User.id == user.id,
-            Role.name == role.name).first() is not None
+        return (
+            self.__db.query(User)
+            .join(User.role)
+            .filter(User.id == user.id, Role.name == role.name)
+            .first()
+            is not None
+        )
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:

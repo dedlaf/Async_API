@@ -70,8 +70,8 @@ async def login(
     user_service: UserService = Depends(get_user_service),
     tokens: Tokens = Depends(get_tokens),
 ):
-    print(user)
-    user_service.login_user(user.username, user.password)
+    user_agent = request.headers.get("user-agent")
+    user_service.login_user(user.username, user.password, user_agent)
 
     user_agent = request.headers.get("user-agent")
     byte_agent = bytes(user_agent, encoding="utf-8")

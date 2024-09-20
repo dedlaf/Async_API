@@ -1,12 +1,16 @@
 from datetime import timedelta
+
+import aiohttp
+import requests
 from fastapi import APIRouter, Depends, Request, Response, status
-from fastapi.responses import RedirectResponse
 from fastapi.exceptions import HTTPException
+from fastapi.responses import RedirectResponse
 from hash import hash_data
 from redis.asyncio import Redis
+from requests_oauthlib import OAuth2Session
 
-from core.config.components.token_conf import Tokens, get_tokens
 from core.config.components.settings import settings
+from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
 from schemas.user import (
     UserCreateSchema,
@@ -15,11 +19,6 @@ from schemas.user import (
     UserResponseSchema,
 )
 from services.user_service import UserService, get_user_service
-from requests_oauthlib import OAuth2Session
-import requests
-import random
-import string
-import aiohttp
 
 router = APIRouter()
 
@@ -148,7 +147,9 @@ async def callback_oauth(
         "client_id": settings.yandex_client_id,
         "client_secret": settings.yandex_client_secret,
     }
-    yandex_token_response = requests.post("https://oauth.yandex.ru/token", data=yandex_data)
+    yandex_token_response = requests.post(
+        "https://oauth.yandex.ru/token", data=yandex_data
+    )
     yandex_access_token = yandex_token_response.json().get("access_token")
 
     yandex_user_info_headers = {"Authorization": f"OAuth {yandex_access_token}"}
@@ -158,8 +159,12 @@ async def callback_oauth(
 
     username = yandex_user_info_response.json().get("login")
     email = "email"
-    password = yandex_user_info_response.json().get("psuid") + yandex_user_info_response.json().get("id")
-    user = UserCreateSchema(username=username, email=email, password=hash_data(password.encode()))
+    password = yandex_user_info_response.json().get(
+        "psuid"
+    ) + yandex_user_info_response.json().get("id")
+    user = UserCreateSchema(
+        username=username, email=email, password=hash_data(password.encode())
+    )
 
     try:
         user_service.create_user(user)

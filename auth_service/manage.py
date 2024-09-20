@@ -1,7 +1,7 @@
 import typer
+from hash import hash_data
 
 from db.session import get_db_function
-from hash import hash_data
 from schemas.role import RoleCreateSchema
 from schemas.user import UserCreateSchema
 from services.role_service import RoleService

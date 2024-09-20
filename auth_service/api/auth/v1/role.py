@@ -1,6 +1,6 @@
 import uuid
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from core.config.components.role_decorator import has_admin
 from schemas.role import RoleCreateSchema, RoleResponseSchema, RoleUpdateSchema
@@ -17,9 +17,9 @@ router = APIRouter()
 )
 @has_admin
 async def create_role(
-        request: Request,
-        role: RoleCreateSchema,
-        role_service: RoleService = Depends(get_role_service),
+    request: Request,
+    role: RoleCreateSchema,
+    role_service: RoleService = Depends(get_role_service),
 ):
     new_role = role_service.create_role(role)
 
@@ -93,7 +93,8 @@ async def update_role(
 @has_admin
 async def delete_role(
     request: Request,
-    role_id: uuid.UUID, role_service: RoleService = Depends(get_role_service)
+    role_id: uuid.UUID,
+    role_service: RoleService = Depends(get_role_service),
 ):
     deleted_role = role_service.delete_role(role_id)
 

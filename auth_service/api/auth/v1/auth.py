@@ -1,9 +1,15 @@
 from datetime import timedelta
 
+import aiohttp
+import requests
 from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi.exceptions import HTTPException
+from fastapi.responses import RedirectResponse
 from hash import hash_data
 from redis.asyncio import Redis
+from requests_oauthlib import OAuth2Session
 
+from core.config.components.settings import settings
 from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
 from schemas.user import (
@@ -15,6 +21,22 @@ from schemas.user import (
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()
+
+
+async def post_login_request(username: str, password: str, rs: Response) -> None:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "http://nginx:80/auth/login",
+            json={"username": username, "password": password},
+        ) as response:
+            rs.set_cookie(
+                key="access_token_cookie",
+                value=response.cookies.get("access_token_cookie").value,
+            )
+            rs.set_cookie(
+                key="refresh_token_cookie",
+                value=response.cookies.get("refresh_token_cookie").value,
+            )
 
 
 @router.post(
@@ -47,7 +69,8 @@ async def login(
     user_service: UserService = Depends(get_user_service),
     tokens: Tokens = Depends(get_tokens),
 ):
-    user_service.login_user(user.username, user.password)
+    user_agent = request.headers.get("user-agent")
+    user_service.login_user(user.username, user.password, user_agent)
 
     user_agent = request.headers.get("user-agent")
     byte_agent = bytes(user_agent, encoding="utf-8")
@@ -105,3 +128,48 @@ async def logout_all(
         await redis_client.delete(key)
 
     return user
+
+
+@router.get("/login-yandex")
+async def login_yandex():
+    yandex = OAuth2Session(settings.yandex_client_id)
+    authorization_url, _ = yandex.authorization_url("https://oauth.yandex.ru/authorize")
+    return RedirectResponse(authorization_url)
+
+
+@router.get("/callback-oauth")
+async def callback_oauth(
+    rs: Response, code: str, user_service: UserService = Depends(get_user_service)
+):
+    yandex_data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "client_id": settings.yandex_client_id,
+        "client_secret": settings.yandex_client_secret,
+    }
+    yandex_token_response = requests.post(
+        "https://oauth.yandex.ru/token", data=yandex_data
+    )
+    yandex_access_token = yandex_token_response.json().get("access_token")
+
+    yandex_user_info_headers = {"Authorization": f"OAuth {yandex_access_token}"}
+    yandex_user_info_response = requests.get(
+        "https://login.yandex.ru/info?format=json", headers=yandex_user_info_headers
+    )
+
+    username = yandex_user_info_response.json().get("login")
+    email = "email"
+    password = yandex_user_info_response.json().get(
+        "psuid"
+    ) + yandex_user_info_response.json().get("id")
+    user = UserCreateSchema(
+        username=username, email=email, password=hash_data(password.encode())
+    )
+
+    try:
+        user_service.create_user(user)
+        await post_login_request(username, password, rs)
+        return "Successfully logged in"
+    except HTTPException:
+        await post_login_request(username, password, rs)
+        return "Successfully logged in"

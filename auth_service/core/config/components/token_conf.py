@@ -41,15 +41,14 @@ class Tokens:
 
     async def get_sub(self, encoded_token):
         username = await self.auth.get_raw_jwt(encoded_token)
-        if username.get('sub'):
-            return username['sub']
+        if username.get("sub"):
+            return username["sub"]
         else:
             return None
 
     async def decode_token(self, token):
         decoded_token = await self.auth.get_raw_jwt(token)
         return decoded_token
-
 
 
 auth_dep = AuthJWTBearer()

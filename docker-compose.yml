@@ -1,9 +1,9 @@
 services:
-#  web:
-#    build:
-#      context: ./src
-#    expose:
-#      - 8000
+  web:
+    build:
+      context: ./src
+    expose:
+      - 8000
   auth:
     build:
       context: ./auth_service
@@ -15,8 +15,8 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
       - "80:80"
-#    depends_on:
-#      - web
+    depends_on:
+      - web
   db:
     image: postgres:latest
     volumes:
@@ -64,7 +64,7 @@ services:
     volumes:
       - static_volume:/static
     expose:
-      - 8000
+      - 8010
     depends_on:
       - db
 

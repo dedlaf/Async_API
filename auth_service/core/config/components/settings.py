@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     yandex_client_id: str
     yandex_client_secret: str
 
+    vk_client_id: str
+    vk_client_secret: str
+    vk_code_verifier: str
+    vk_redirect_uri: str
+
+    enable_tracer: bool = False
+
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
 

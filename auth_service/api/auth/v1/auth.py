@@ -19,6 +19,7 @@ from schemas.user import (
     UserResponseSchema,
 )
 from services.user_service import UserService, get_user_service
+from services.oauth_service import OauthService, get_oauth_service
 
 router = APIRouter()
 
@@ -118,7 +119,6 @@ async def logout(
 )
 async def logout_all(
     user: UserLogoutSchema,
-    request: Request,
     redis_client: Redis = Depends(get_redis),
 ):
     async for key in redis_client.scan_iter(f"access_token:{user.username}:*"):
@@ -130,44 +130,51 @@ async def logout_all(
     return user
 
 
-@router.get("/login-yandex")
-async def login_yandex():
-    yandex = OAuth2Session(settings.yandex_client_id)
-    authorization_url, _ = yandex.authorization_url("https://oauth.yandex.ru/authorize")
-    return RedirectResponse(authorization_url)
+@router.get("/login-oauth")
+async def login_oauth(provider, oauth: OauthService = Depends(get_oauth_service)):
+    url = oauth.get_authorization_url(provider)
+    return RedirectResponse(url)
 
 
-@router.get("/callback-oauth")
-async def callback_oauth(
-    rs: Response, code: str, user_service: UserService = Depends(get_user_service)
+@router.get("/callback-vk")
+async def callback_vk(
+    rs: Response, code: str, state, device_id, user_service: UserService = Depends(get_user_service), oauth: OauthService = Depends(get_oauth_service)
 ):
-    yandex_data = {
-        "grant_type": "authorization_code",
-        "code": code,
-        "client_id": settings.yandex_client_id,
-        "client_secret": settings.yandex_client_secret,
-    }
-    yandex_token_response = requests.post(
-        "https://oauth.yandex.ru/token", data=yandex_data
-    )
-    yandex_access_token = yandex_token_response.json().get("access_token")
+    user_info = await oauth.get_user(service="vk", code=code, state=state, device_id=device_id)
 
-    yandex_user_info_headers = {"Authorization": f"OAuth {yandex_access_token}"}
-    yandex_user_info_response = requests.get(
-        "https://login.yandex.ru/info?format=json", headers=yandex_user_info_headers
-    )
-
-    username = yandex_user_info_response.json().get("login")
+    username = user_info.get("user").get("user_id")
     email = "email"
-    password = yandex_user_info_response.json().get(
-        "psuid"
-    ) + yandex_user_info_response.json().get("id")
+    password = "password"
     user = UserCreateSchema(
         username=username, email=email, password=hash_data(password.encode())
     )
 
     try:
         user_service.create_user(user)
+        await post_login_request(username, password, rs)
+        return "Successfully logged in"
+    except HTTPException:
+        await post_login_request(username, password, rs)
+        return "Successfully logged in"
+
+
+@router.get("/callback-yandex")
+async def callback_yandex(
+    rs: Response, code: str, user_service: UserService = Depends(get_user_service), oauth: OauthService = Depends(get_oauth_service)
+):
+    user_info = await oauth.get_user(service="yandex", code=code)
+    print(user_info)
+    username = user_info.get("login")
+    email = "email"
+    password = "password"
+    user = UserCreateSchema(
+        username=username, email=email, password=hash_data(password.encode())
+    )
+    print(user)
+    try:
+        user_service.create_user(user)
+        user = user_service.get_user_by_username(username)
+        user_service.create_social_user(user=user, social_type="yandex", social_user_id=user_info.get("id"))
         await post_login_request(username, password, rs)
         return "Successfully logged in"
     except HTTPException:

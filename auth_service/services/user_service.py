@@ -1,12 +1,12 @@
 import uuid
 
 from fastapi import Depends, HTTPException, status
-from hash import verify_password
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from db.models import Role, User
+from db.models import Role, SocialUser, User
 from db.session import get_db
+from hash import verify_password
 from schemas.user import UserCreateSchema
 from services.login_history_service import LoginHistoryService
 
@@ -110,6 +110,27 @@ class UserService:
             .first()
             is not None
         )
+
+    def create_social_user(
+        self, user: User, social_user_id: uuid.UUID, social_type: str
+    ) -> SocialUser:
+        try:
+            social_user = SocialUser(
+                user_id=user.id, social_user_id=social_user_id, social_type=social_type
+            )
+
+            self.__db.add(user)
+            self.__db.commit()
+            self.__db.refresh(user)
+
+            return social_user
+        except SQLAlchemyError as e:
+            self.__db.rollback()
+
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"An error occurred while creating the social user: {e}",
+            )
 
 
 def get_user_service(db: Session = Depends(get_db)) -> UserService:

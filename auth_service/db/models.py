@@ -1,12 +1,22 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Text, UniqueConstraint, text
+from sqlalchemy import (
+    Column,
+    DateTime,
+    ForeignKey,
+    MetaData,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
-Base = declarative_base()
+metadata = MetaData(schema="auth")
+
+Base = declarative_base(metadata=metadata)
 
 
 class User(Base):
@@ -22,6 +32,9 @@ class User(Base):
     role = relationship("Role", backref="users")
     login_histories = relationship(
         "LoginHistory", back_populates="user", cascade="delete, merge, save-update"
+    )
+    social_users = relationship(
+        "SocialUser", back_populates="user", cascade="delete, merge, save-update"
     )
 
 
@@ -74,3 +87,19 @@ class LoginHistory(Base):
 
     def __repr__(self) -> str:
         return f"<LoginHistory {self.user_id}:{self.logged_in_at}>"
+
+
+class SocialUser(Base):
+    __tablename__ = "social_user"
+    __table_args__ = (UniqueConstraint("user_id", "social_user_id"), {"schema": "auth"})
+
+    id = Column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
+    )
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("auth.user.id"), nullable=False
+    )
+    social_user_id = Column(UUID(as_uuid=True), nullable=False)
+    social_type = Column(Text, nullable=False)
+
+    user = relationship("User", back_populates="social_users")

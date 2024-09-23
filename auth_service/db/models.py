@@ -9,6 +9,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     text,
+    Integer,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
@@ -99,7 +100,7 @@ class SocialUser(Base):
     user_id = Column(
         UUID(as_uuid=True), ForeignKey("auth.user.id"), nullable=False
     )
-    social_user_id = Column(UUID(as_uuid=True), nullable=False)
+    social_user_id = Column(Integer, nullable=False)
     social_type = Column(Text, nullable=False)
 
     user = relationship("User", back_populates="social_users")

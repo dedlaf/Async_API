@@ -66,6 +66,9 @@ AUTHENTICATION_BACKENDS = [
     'movies.backends.CustomBackend',
 ]
 
+
+AUTH_API_LOGIN_URL = "http://nginx:80/auth/login"
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

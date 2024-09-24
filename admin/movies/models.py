@@ -47,6 +47,10 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
+    class Meta:
+        db_table = "content\".\"user"
+
+
 
 class Genre(UUIDMixin, TimeStampedMixin):
     name = models.CharField(_('name'), max_length=255)

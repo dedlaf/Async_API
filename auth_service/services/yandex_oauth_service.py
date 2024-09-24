@@ -1,5 +1,5 @@
-from core.config.components.settings import settings
 import aiohttp
+from core.config.components.settings import settings
 
 
 class YandexOauth:
@@ -8,8 +8,7 @@ class YandexOauth:
         self.client_secret = settings.yandex_client_secret
 
     def _get_yandex_query(self):
-        query = f"?response_type=code" \
-                f"&client_id={self.client_id}"
+        query = f"?response_type=code" f"&client_id={self.client_id}"
         return query
 
     def _get_yandex_access_data(self, code):
@@ -24,7 +23,9 @@ class YandexOauth:
     @staticmethod
     async def _get_yandex_access_token(yandex_access_data):
         async with aiohttp.ClientSession() as session:
-            async with session.post("https://oauth.yandex.ru/token", data=yandex_access_data) as response:
+            async with session.post(
+                "https://oauth.yandex.ru/token", data=yandex_access_data
+            ) as response:
                 yandex_access_token = await response.json()
 
                 return yandex_access_token.get("access_token")
@@ -33,7 +34,10 @@ class YandexOauth:
     async def _get_yandex_user_info(yandex_access_token):
         yandex_user_info_headers = {"Authorization": f"OAuth {yandex_access_token}"}
         async with aiohttp.ClientSession() as session:
-            async with session.get("https://login.yandex.ru/info?format=json", headers=yandex_user_info_headers) as response:
+            async with session.get(
+                "https://login.yandex.ru/info?format=json",
+                headers=yandex_user_info_headers,
+            ) as response:
                 yandex_user_info_response = await response.json()
 
                 return yandex_user_info_response

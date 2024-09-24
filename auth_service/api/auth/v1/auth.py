@@ -1,25 +1,17 @@
 from datetime import timedelta
 
 import aiohttp
-import requests
+from core.config.components.token_conf import Tokens, get_tokens
+from db.redis import get_redis
 from fastapi import APIRouter, Depends, Request, Response, status
 from fastapi.exceptions import HTTPException
 from fastapi.responses import RedirectResponse
 from hash import hash_data
 from redis.asyncio import Redis
-from requests_oauthlib import OAuth2Session
-
-from core.config.components.settings import settings
-from core.config.components.token_conf import Tokens, get_tokens
-from db.redis import get_redis
-from schemas.user import (
-    UserCreateSchema,
-    UserLoginSchema,
-    UserLogoutSchema,
-    UserResponseSchema,
-)
-from services.user_service import UserService, get_user_service
+from schemas.user import (UserCreateSchema, UserLoginSchema, UserLogoutSchema,
+                          UserResponseSchema)
 from services.oauth_service import OauthService, get_oauth_service
+from services.user_service import UserService, get_user_service
 
 router = APIRouter()
 
@@ -132,16 +124,24 @@ async def logout_all(
 
 @router.get("/login-oauth")
 async def login_oauth(provider, oauth: OauthService = Depends(get_oauth_service)):
-    url = oauth.get_authorization_url(provider)
-    return RedirectResponse(url)
+    if provider == "yandex":
+        url = oauth.get_authorization_url_yandex()
+        return RedirectResponse(url)
+    elif provider == "vk":
+        url = oauth.get_authorization_url_vk()
+        return RedirectResponse(url)
 
 
 @router.get("/callback-vk")
 async def callback_vk(
-    rs: Response, code: str, state, device_id, user_service: UserService = Depends(get_user_service), oauth: OauthService = Depends(get_oauth_service)
+    rs: Response,
+    code: str,
+    state,
+    device_id,
+    user_service: UserService = Depends(get_user_service),
+    oauth: OauthService = Depends(get_oauth_service),
 ):
-    user_info = await oauth.get_user(service="vk", code=code, state=state, device_id=device_id)
-
+    user_info = await oauth.get_user_vk(code=code, state=state, device_id=device_id)
     username = user_info.get("user").get("user_id")
     email = "email"
     password = "password"
@@ -151,6 +151,12 @@ async def callback_vk(
 
     try:
         user_service.create_user(user)
+        user = user_service.get_user_by_username(username)
+        user_service.create_social_user(
+            user=user,
+            social_type="vk",
+            social_user_id=user_info.get("user").get("user_id"),
+        )
         await post_login_request(username, password, rs)
         return "Successfully logged in"
     except HTTPException:
@@ -160,21 +166,24 @@ async def callback_vk(
 
 @router.get("/callback-yandex")
 async def callback_yandex(
-    rs: Response, code: str, user_service: UserService = Depends(get_user_service), oauth: OauthService = Depends(get_oauth_service)
+    rs: Response,
+    code: str,
+    user_service: UserService = Depends(get_user_service),
+    oauth: OauthService = Depends(get_oauth_service),
 ):
-    user_info = await oauth.get_user(service="yandex", code=code)
-    print(user_info)
+    user_info = await oauth.get_user_yandex(code=code)
     username = user_info.get("login")
     email = "email"
     password = "password"
     user = UserCreateSchema(
         username=username, email=email, password=hash_data(password.encode())
     )
-    print(user)
     try:
         user_service.create_user(user)
         user = user_service.get_user_by_username(username)
-        user_service.create_social_user(user=user, social_type="yandex", social_user_id=user_info.get("id"))
+        user_service.create_social_user(
+            user=user, social_type="yandex", social_user_id=user_info.get("id")
+        )
         await post_login_request(username, password, rs)
         return "Successfully logged in"
     except HTTPException:

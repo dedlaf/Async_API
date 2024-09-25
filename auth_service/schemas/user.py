@@ -23,7 +23,9 @@ class UserLogoutSchema(UserBaseSchema): ...
 class UserResponseSchema(UserBaseSchema): ...
 
 
-class UserResponseAdminSchema(UserBaseSchema): ...
+class UserResponseAdminSchema(UserBaseSchema):
+    email: str
+
 
 class RoleAssignationRequestSchema(BaseModel):
     user_id: uuid.UUID

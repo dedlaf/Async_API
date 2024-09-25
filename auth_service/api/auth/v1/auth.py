@@ -17,6 +17,7 @@ from schemas.user import (
     UserLoginSchema,
     UserLogoutSchema,
     UserResponseSchema,
+    UserResponseAdminSchema,
 )
 from services.user_service import UserService, get_user_service
 
@@ -56,7 +57,7 @@ async def register(
 
 @router.post(
     "/login",
-    response_model=UserResponseSchema,
+    response_model=UserResponseAdminSchema,
     status_code=status.HTTP_200_OK,
     summary="Log in to user account",
     description="Create new user session. Create new access and refresh tokens",
@@ -70,7 +71,7 @@ async def login(
     tokens: Tokens = Depends(get_tokens),
 ):
     user_agent = request.headers.get("user-agent")
-    user_service.login_user(user.username, user.password, user_agent)
+    user = user_service.login_user(user.username, user.password, user_agent)
 
     user_agent = request.headers.get("user-agent")
     byte_agent = bytes(user_agent, encoding="utf-8")
@@ -88,7 +89,6 @@ async def login(
     )
 
     await tokens.set_in_cookies(access_token, refresh_token, response)
-
     return user
 
 

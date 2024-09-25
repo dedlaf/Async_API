@@ -33,17 +33,22 @@ class CustomBackend(BaseBackend):
         data = response.json()
 
         try:
-            user, created = User.objects.get_or_create(id=data['id'], )
+            user, created = User.objects.get_or_create(email=data['email'], )
+            print(user, created)
             user.email = data.get('email')
             user.first_name = data.get('first_name', "")
             user.last_name = data.get('last_name', "")
             # user.is_admin = data.get('role') == Roles.ADMIN
-            user.is_admin = data.get('role') == "admin"
+            #user.is_admin = data.get('role') == "admin"
+            user.is_admin = True
+            user.is_staff = True
             user.is_active = data.get('is_active', True)
             user.save()
         except Exception:
+            print("error")
             return None
 
+        print("done", user)
         return user
 
     def get_user(self, user_id):

@@ -19,7 +19,7 @@ def create_admin_role():
 
 
 @app.command()
-def create_superuser(username: str, password: str, email: str = "email"):
+def create_superuser(username: str, password: str, email: str):
     user = UserCreateSchema(
         username=username, email=email, password=hash_data(password.encode())
     )

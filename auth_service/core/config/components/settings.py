@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     VK_CODE_VERIFIER: str
     VK_REDIRECT_URI: str
 
+    enable_tracer: bool = False
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")

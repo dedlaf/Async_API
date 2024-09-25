@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     ELASTIC_HOST: str = "elasticsearch"
     ELASTIC_PORT: int = 9200
 
+    enable_tracer: bool = False
+
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
 
@@ -29,5 +31,7 @@ REDIS_PORT = settings.REDIS_PORT
 
 ELASTIC_HOST = settings.ELASTIC_HOST
 ELASTIC_PORT = settings.ELASTIC_PORT
+
+enable_tracer = settings.enable_tracer
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

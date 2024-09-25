@@ -42,7 +42,6 @@ async def lifespan(app: FastAPI):
     await elastic.es.close()
 
 
-configure_tracer()
 app = FastAPI(
     title=config.PROJECT_NAME,
     docs_url="/api/openapi",
@@ -50,7 +49,10 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )
-FastAPIInstrumentor.instrument_app(app)
+
+if config.enable_tracer:
+    configure_tracer()
+    FastAPIInstrumentor.instrument_app(app)
 
 @app.middleware('http')
 async def before_request(request: Request, call_next):

@@ -69,6 +69,7 @@ async def login(
     redis_client: Redis = Depends(get_redis),
     user_service: UserService = Depends(get_user_service),
     tokens: Tokens = Depends(get_tokens),
+
 ):
     user_agent = request.headers.get("user-agent")
     user = user_service.login_user(user.username, user.password, user_agent)

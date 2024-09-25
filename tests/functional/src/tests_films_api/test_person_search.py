@@ -31,7 +31,6 @@ async def test_search(
     query_data: dict[str, Any],
     expected_answer: dict[str, int],
 ) -> None:
-    print(bulk_query_persons)
     body, headers, status = await http_session_get("persons/search/", query_data)
     assert status == HTTPStatus.OK
     assert len(body) > 0

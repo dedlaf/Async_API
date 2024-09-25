@@ -24,6 +24,7 @@ class UserResponseSchema(UserBaseSchema): ...
 
 
 class UserResponseAdminSchema(UserBaseSchema):
+    role_id: uuid.UUID
     email: str
 
 

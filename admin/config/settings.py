@@ -68,6 +68,8 @@ AUTHENTICATION_BACKENDS = [
 
 
 AUTH_API_LOGIN_URL = "http://nginx:80/auth/login"
+AUTH_API_ROLE_URL = "http://nginx:80/auth/role"
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

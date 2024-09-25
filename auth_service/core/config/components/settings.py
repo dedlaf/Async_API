@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     yandex_client_id: str
     yandex_client_secret: str
 
-    vk_client_id: str
-    vk_client_secret: str
-    vk_code_verifier: str
-    vk_redirect_uri: str
+    VK_CLIENT_ID: str
+    VK_CLIENT_SECRET: str
+    VK_CODE_VERIFIER: str
+    VK_REDIRECT_URI: str
 
     enable_tracer: bool = False
 

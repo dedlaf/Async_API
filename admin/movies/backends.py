@@ -6,6 +6,8 @@ import requests
 from django.conf import settings
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
+from pydantic import BaseModel
+
 
 User = get_user_model()
 
@@ -14,24 +16,32 @@ class Roles(StrEnum):
     ADMIN = auto()
     SUBSCRIBER = auto()
 
+class UserLoginSchema(BaseModel):
+    username: str
+    password: str
 
 class CustomBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None):
         url = settings.AUTH_API_LOGIN_URL
-        payload = {'email': username, 'password': password}
-        response = requests.post(url, data=json.dumps(payload))
+        payload = {'username': str(username), 'password': str(password)}
+        response = requests.post(url, json=payload)
         if response.status_code != http.HTTPStatus.OK:
             return None
-
-        data = response.json()
-
+        user_data = response.json()
+        payload_role = {
+            'id': user_data['role_id'],
+        }
+        response_role = requests.get(settings.AUTH_API_ROLE_URL+"/"+payload_role.get('id'),)
+        user_role_data = response_role.json()
         try:
-            user, created = User.objects.get_or_create(id=data['id'], )
-            user.email = data.get('email')
-            user.first_name = data.get('first_name')
-            user.last_name = data.get('last_name')
-            user.is_admin = data.get('role') == Roles.ADMIN
-            user.is_active = data.get('is_active')
+            user, created = User.objects.get_or_create(email=user_data['email'], )
+            user.email = user_data.get('email')
+            user.first_name = user_data.get('first_name', "")
+            user.last_name = user_data.get('last_name', "")
+            user.is_admin = user_role_data.get('name') == Roles.ADMIN
+
+            user.is_staff = True
+            user.is_active = user_data.get('is_active', True)
             user.save()
         except Exception:
             return None

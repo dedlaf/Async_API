@@ -53,8 +53,7 @@ async def user(
     tokens: Tokens = Depends(get_tokens), user: UserService = Depends(get_user_service)
 ):
     current_user = await tokens.validate()
-    print(current_user)
-    print(type(current_user))
+
     current_user = user.get_user_by_username(current_user)
     return (
         {"user": current_user.username, "role_id": current_user.role_id}

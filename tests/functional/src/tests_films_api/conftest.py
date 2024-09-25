@@ -53,7 +53,6 @@ async def http_session():
 def http_session_get(http_session: aiohttp.ClientSession) -> callable:
     async def inner(url: str, query_data: dict = None) -> list:
         async with http_session.get("/api/v1/" + url, params=query_data) as response:
-            pprint(response)
             return [await response.json(), response.headers, response.status]
 
     return inner

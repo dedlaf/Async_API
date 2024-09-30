@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Genre, Filmwork, GenreFilmwork, Person, PersonFilmwork
-
+from .models import Genre, Filmwork, GenreFilmwork, Person, PersonFilmwork, User
 
 class PersonFilmworkInline(admin.TabularInline):
     model = PersonFilmwork
@@ -15,6 +14,9 @@ class GenreFilmworkInline(admin.TabularInline):
 class GenreAdmin(admin.ModelAdmin):
     pass
 
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Filmwork)
 class FilmworkAdmin(admin.ModelAdmin):

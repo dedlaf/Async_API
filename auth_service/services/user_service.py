@@ -112,16 +112,16 @@ class UserService:
         )
 
     def create_social_user(
-        self, user: User, social_user_id: uuid.UUID, social_type: str
+        self, user: User, social_user_id: int, social_type: str
     ) -> SocialUser:
         try:
             social_user = SocialUser(
                 user_id=user.id, social_user_id=social_user_id, social_type=social_type
             )
 
-            self.__db.add(user)
+            self.__db.add(social_user)
             self.__db.commit()
-            self.__db.refresh(user)
+            self.__db.refresh(social_user)
 
             return social_user
         except SQLAlchemyError as e:

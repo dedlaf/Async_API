@@ -18,6 +18,8 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 
+settings = Settings()
+
 
 def configure_tracer() -> None:
     trace.set_tracer_provider(TracerProvider())
@@ -34,8 +36,6 @@ def configure_tracer() -> None:
     trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
 
 
-settings = Settings()
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     redis.redis = Redis(host=settings.redis_host, port=settings.redis_port)
@@ -44,7 +44,6 @@ async def lifespan(app: FastAPI):
     await redis.redis.close()
 
 
-configure_tracer()
 limiter = Limiter(key_func=get_remote_address, default_limits=["1000/minute"])
 app = FastAPI(
     title=settings.project_name,
@@ -55,7 +54,9 @@ app = FastAPI(
 )
 
 
-FastAPIInstrumentor.instrument_app(app)
+if settings.enable_tracer:
+    configure_tracer()
+    FastAPIInstrumentor.instrument_app(app)
 app.state.limiter = limiter
 app.add_middleware(SlowAPIMiddleware)
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

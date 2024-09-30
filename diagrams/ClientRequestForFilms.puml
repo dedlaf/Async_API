@@ -1,0 +1,30 @@
+@startuml
+skinparam componentStyle uml2
+== Пользователь регистриуется ==
+actor Клиент as client
+activate AsyncApi
+database Elastic
+activate AuthService
+database PostgresAuth
+database Redis
+
+client --> AuthService: Регистируется/авторизируется
+alt Пользователь зарегистрирован
+    AuthService --> PostgresAuth: Добавляет пользователя в базу
+end Пользователь уже существует
+AuthService --> Redis: Создает токены и передает в редис
+AuthService --> client: Передает токены клиенту
+deactivate Redis
+== Пользователь ищет фильм ==
+client --> AsyncApi: Пользователь ищет фильмы
+AsyncApi --> AuthService: Проверяет токены
+alt Токены действителен
+    AuthService --> AsyncApi: Токены действителен
+    AsyncApi --> Elastic: Запрашивает фильмы
+    Elastic --> AsyncApi: Отдает фильмы
+    AsyncApi --> client: Вот фильмы
+else Токены недействительны
+    AuthService --> AsyncApi: Токены недействительны
+    AsyncApi --> client: Доступ отклонен
+end
+@enduml

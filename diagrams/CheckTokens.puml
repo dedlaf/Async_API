@@ -1,0 +1,26 @@
+@startuml
+skinparam componentStyle uml2
+== Проверка токенов ==
+actor Клиент as client
+activate AsyncApi
+activate AuthService
+database Redis
+
+client --> AsyncApi: Клиент делает запрос на получение фильмов
+AsyncApi --> AuthService: Отдает куки клиента и запрашивает аунтификацию
+AuthService --> Redis: Сверяет токены в редисе
+alt Токены есть в редисе
+    Redis --> AuthService: Токены есть
+    alt Токены в редисе действительны
+        AuthService --> AsyncApi: Можно показать фильмы
+        AsyncApi --> client: Фильмы
+    else Токены недействительны
+        AuthService --> AsyncApi: Нельзя показывать
+        AsyncApi --> client: Доступ отклонен
+    end
+else Токенов нет в редисе
+    Redis --> AuthService: Токенов нет
+    AuthService --> AsyncApi: Нельзя показывать
+    AsyncApi --> client: Доступ отклонен
+end
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+skinparam componentStyle uml2
+== Загрузка фильмов ==
+actor Админ as Admin
+activate AdminPanel
+activate AuthApi
+activate ETL
+database PostgresСontent
+database Elastic
+
+Admin --> AdminPanel: Аунтифицируется
+AdminPanel --> AuthApi: Проверяет права админа
+alt Успешно аутифицировался
+    AuthApi --> AdminPanel: Пользователь аунтифицирован
+    AdminPanel --> Admin: Вход разрешен
+    Admin --> AdminPanel: Загружает фильмы в админку
+    AdminPanel --> PostgresСontent: Загружает фильмы в Postgres
+    PostgresСontent --> ETL: ETL забирает новые фильмы из БД
+    ETL --> Elastic: Загружает фильмы в поисковик
+else Запрос отклонен
+    AuthApi --> AdminPanel: Пользователь неаунтифицирован
+    AdminPanel --> Admin: Вход запрещён
+end
+deactivate AdminPanel
+deactivate ETL
+deactivate AuthApi
+@enduml

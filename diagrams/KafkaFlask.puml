@@ -1,0 +1,17 @@
+@startuml
+skinparam componentStyle uml2
+== Сбор данных ==
+actor Клиент as client
+activate AsyncApi
+activate Flask
+activate Kafka
+activate ETL
+activate ClickHouse
+
+client --> AsyncApi: Делает какие то действия
+AsyncApi --> Flask: Отправляет действия и метаданные пользователя
+Flask --> Kafka: Отправляет данные в брокер
+Kafka --> ETL: ETL забирает данные из кафки
+ETL --> ClickHouse: ETL отправляет данные в кликхаус
+
+@enduml

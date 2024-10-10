@@ -73,6 +73,10 @@ services:
     ports:
       - "6831:6831"
       - "16686:16686"
+  flask:
+    build: ./flask
+    ports:
+      - "5000:5000"
 
 
 volumes:

@@ -134,6 +134,14 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS=kafka-0:9092
       - KAFKA_CLUSTERS_0_NAME=kraft
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "8123:8123"  # HTTP порт для взаимодействия
+      - "9000:9000"  # TCP порт
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
 
 volumes:
   postgres_data:
@@ -143,3 +151,4 @@ volumes:
   kafka_0_data:
   kafka_1_data:
   kafka_2_data:
+  clickhouse_data:

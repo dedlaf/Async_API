@@ -20,7 +20,9 @@ class UserLoginSchema(UserBaseSchema):
 class UserLogoutSchema(UserBaseSchema): ...
 
 
-class UserResponseSchema(UserBaseSchema): ...
+class UserResponseSchema(UserBaseSchema):
+    id: uuid.UUID
+    role_id: uuid.UUID
 
 
 class UserResponseAdminSchema(UserBaseSchema):

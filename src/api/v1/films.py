@@ -9,15 +9,22 @@ from services.film import FilmService, get_film_service
 
 from .settings import (FilmResponse, FilmResponseFull, filter_query_string,
                        ignoring_request_args)
-
+import requests
 
 router = APIRouter()
 
 
+
 @router.get("/{film_id}", response_model=FilmResponseFull)
 async def film_details(
-    film_id: str, film_service: FilmService = Depends(get_film_service)
+    request: Request, film_id: str, film_service: FilmService = Depends(get_film_service)
 ) -> FilmResponseFull:
+    cookies = {
+        "access_token_cookie": request.cookies.get("access_token_cookie"),
+        "refresh_token_cookie": request.cookies.get("refresh_token_cookie"),
+    }
+    user_id = requests.get("http://auth:8070/auth/token/user", cookies=cookies).json()
+    requests.post("http://flask:5000/load-data", json={"topic": "likes", "user_id": user_id.get("id"), "value": film_id})
     film = await film_service.get_by_id(film_id)
     if not film:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="film not found")

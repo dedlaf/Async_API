@@ -38,7 +38,7 @@ async def refresh(
 
     await redis_client.set(
         name=f"access_token:{user.username}:{hash_data(byte_agent)}",
-        ex=timedelta(minutes=10),
+        ex=timedelta(minutes=20),
         value=access_token,
     )
     await redis_client.set(

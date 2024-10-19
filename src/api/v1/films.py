@@ -24,6 +24,7 @@ async def film_details(
         "refresh_token_cookie": request.cookies.get("refresh_token_cookie"),
     }
     user_id = requests.get("http://auth:8070/auth/token/user", cookies=cookies).json()
+    print(user_id, user_id.get("id"))
     requests.post("http://flask:5000/load-data", json={"topic": "likes", "user_id": user_id.get("id"), "value": film_id})
     film = await film_service.get_by_id(film_id)
     if not film:

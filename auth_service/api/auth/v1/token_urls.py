@@ -8,6 +8,7 @@ from redis.asyncio import Redis
 from core.config.components.settings import Settings
 from core.config.components.token_conf import Tokens, get_tokens
 from db.redis import get_redis
+from schemas.user import UserResponseSchema
 from services.user_service import UserService, get_user_service
 
 router = APIRouter()
@@ -37,7 +38,7 @@ async def refresh(
 
     await redis_client.set(
         name=f"access_token:{user.username}:{hash_data(byte_agent)}",
-        ex=timedelta(minutes=10),
+        ex=timedelta(minutes=20),
         value=access_token,
     )
     await redis_client.set(
@@ -48,18 +49,14 @@ async def refresh(
     return {"msg": "Successfully logged in"}
 
 
-@router.get("/user", summary="Get user from tokens")
+@router.get("/user", summary="Get user from tokens", response_model=UserResponseSchema)
 async def user(
     tokens: Tokens = Depends(get_tokens), user: UserService = Depends(get_user_service)
 ):
     current_user = await tokens.validate()
 
     current_user = user.get_user_by_username(current_user)
-    return (
-        {"user": current_user.username, "role_id": current_user.role_id}
-        if current_user is not None
-        else 404
-    )
+    return current_user
 
 
 @router.get(

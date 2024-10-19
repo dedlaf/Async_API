@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -20,11 +21,12 @@ class UserLoginSchema(UserBaseSchema):
 class UserLogoutSchema(UserBaseSchema): ...
 
 
-class UserResponseSchema(UserBaseSchema): ...
-
+class UserResponseSchema(UserBaseSchema):
+    id: Optional[uuid.UUID] = None
+    role_id: Optional[uuid.UUID] = None
 
 class UserResponseAdminSchema(UserBaseSchema):
-    role_id: uuid.UUID
+    role_id: Optional[uuid.UUID] = None
     email: str
 
 

@@ -54,6 +54,14 @@ services:
       - ./etl/.env
     depends_on:
       - elasticsearch
+  etl_analytics:
+    build:
+      context: ./etl_analytics
+    env_file:
+      - ./etl_analytics/.env
+    depends_on:
+      - kafka-0
+      - clickhouse
   redis:
     image: redis:alpine
     expose:

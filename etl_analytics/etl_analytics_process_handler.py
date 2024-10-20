@@ -10,7 +10,9 @@ class ETLAnalyticsProcessHandler:
 
         self.__kafka_extractor = KafkaExtractor(connection_manager.kafka_connection)
         self.__data_transformer = DataTransformer()
-        self.__clickhouse_loader = ClickhouseLoader(connection_manager.clickhouse_connection)
+        self.__clickhouse_loader = ClickhouseLoader(
+            connection_manager.clickhouse_connection
+        )
 
     def handle_process(self) -> None:
         messages = self.__kafka_extractor.extract_messages()

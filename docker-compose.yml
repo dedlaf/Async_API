@@ -83,8 +83,6 @@ services:
       - "16686:16686"
   flask:
     build: ./flask
-    ports:
-      - "5000:5000"
     expose:
       - "5000"
   kafka-0:

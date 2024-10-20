@@ -1,4 +1,3 @@
-import json
 from typing import Any
 
 import backoff
@@ -30,27 +29,18 @@ class ETLAnalyticsConnectionManager:
 
     @backoff.on_exception(backoff.expo, Exception, factor=2, max_time=600)
     def __get_kafka_connection(self) -> KafkaConsumer:
-        try:
-            consumer = KafkaConsumer(
-                bootstrap_servers=[settings.bootstrap_servers],
-                auto_offset_reset="latest",
-                #enable_auto_commit=True,
-                group_id="etl_kafka_clickhouse",
-                value_deserializer=lambda x: json.loads(x.decode("utf-8")),
-            )
+        consumer = KafkaConsumer(
+            bootstrap_servers=[settings.bootstrap_servers],
+            group_id="etl",
+        )
 
-            available_topics = list(consumer.topics())
+        available_topics = list(consumer.topics())
 
-            consumer.subscribe(available_topics)
+        consumer.subscribe(available_topics)
 
-            return consumer
-        except Exception as e:
-            raise
+        return consumer
 
     @backoff.on_exception(backoff.expo, Exception, factor=2, max_time=600)
     def __get_clickhouse_connection(self) -> Client:
-        try:
-            clickhouse_client = Client(host="localhost:8213")
-            return clickhouse_client
-        except Exception as e:
-            raise
+        clickhouse_client = Client(host=settings.clickhouse_host)
+        return clickhouse_client

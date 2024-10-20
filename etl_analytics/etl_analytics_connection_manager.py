@@ -32,9 +32,9 @@ class ETLAnalyticsConnectionManager:
     def __get_kafka_connection(self) -> KafkaConsumer:
         try:
             consumer = KafkaConsumer(
-                bootstrap_servers=settings.bootstrap_servers,
+                bootstrap_servers=[settings.bootstrap_servers],
                 auto_offset_reset="latest",
-                enable_auto_commit=True,
+                #enable_auto_commit=True,
                 group_id="etl_kafka_clickhouse",
                 value_deserializer=lambda x: json.loads(x.decode("utf-8")),
             )

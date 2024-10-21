@@ -8,4 +8,3 @@ class Settings(BaseSettings):
 
 settings = Settings()
 kafka_host = settings.kafka_host
-print(kafka_host)

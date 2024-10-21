@@ -9,7 +9,7 @@ import requests
 app = Flask(__name__)
 
 
-@app.route('/load-data', methods=['POST'])
+@app.route('/analytics/load-data', methods=['POST'])
 def load_data():
     user_id = requests.get("http://auth:8070/auth/token/user", cookies=request.cookies).json()['id']
     data: KafkaData = KafkaData(

@@ -15,9 +15,15 @@ class ETLAnalyticsProcessHandler:
         )
 
     def handle_process(self) -> None:
-        messages = self.__kafka_extractor.extract_messages()
+        while True:
+            messages = self.__kafka_extractor.extract_messages()
 
-        for message in messages:
-            transformed_data = self.__data_transformer.transform_data(message)
+            for _, records in messages.items():
+                batch = []
 
-            self.__clickhouse_loader.load_data(transformed_data)
+                for message in records:
+                    transformed_data = self.__data_transformer.transform_data(message)
+                    batch.append(transformed_data)
+
+                self.__clickhouse_loader.load_data(batch, batch[0].topic)
+                self.__kafka_extractor.commit_message()

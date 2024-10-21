@@ -32,6 +32,8 @@ class ETLAnalyticsConnectionManager:
         consumer = KafkaConsumer(
             bootstrap_servers=[settings.bootstrap_servers],
             group_id="etl",
+            enable_auto_commit=False,
+            max_poll_records=settings.batch_size,
         )
 
         available_topics = list(consumer.topics())

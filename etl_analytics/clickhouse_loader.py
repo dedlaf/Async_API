@@ -9,11 +9,11 @@ class ClickhouseLoader:
         self.__client = client
 
     @backoff.on_exception(backoff.expo, Exception, factor=2, max_time=600)
-    def load_data(self, message: Message) -> None:
-        if not self.__is_table_exists(message.topic):
-            self.__create_table(message.topic)
+    def load_data(self, messages: list[Message], topic: str) -> None:
+        if not self.__is_table_exists(topic):
+            self.__create_table(topic)
 
-        self.__insert_message(message)
+        self.__insert_message(messages, topic)
 
     def __create_table(self, topic: str) -> None:
         table_name = f"topic_{topic}"
@@ -34,8 +34,8 @@ class ClickhouseLoader:
 
         return result[0][0] > 0
 
-    def __insert_message(self, message: Message) -> None:
-        table_name = f"topic_{message.topic}"
+    def __insert_message(self, messages: list[Message], topic: str) -> None:
+        table_name = f"topic_{topic}"
 
         insert_query = f"INSERT INTO {table_name} (key, value) VALUES"
-        self.__client.execute(insert_query, [(message.key, message.value)])
+        self.__client.execute(insert_query, [(message.key, message.value) for message in messages])

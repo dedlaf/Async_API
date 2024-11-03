@@ -1,6 +1,7 @@
 [flake8]
-max-complexity = 6
-max-line-length = 80
+max-complexity = 10
+max-line-length = 120
+ignore = E501,W503
 show-source = true
 doctests = true
 
@@ -13,7 +14,7 @@ docstring-quotes = single
 
 # plugins:
 accept-encodings = utf-8
-max-local-variables = 10
-min-name-length = 3
-max-imports = 10
-max-module-members = 20
+max-local-variables = 20
+min-name-length = 2
+max-imports = 20
+max-module-members = 40

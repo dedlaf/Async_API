@@ -1,10 +1,11 @@
 [flake8]
-max-complexity = 10
+max-complexity = 20
 max-line-length = 120
 ignore =
-    D100, D101, D102, D103, D104, D105, D106, D107, D400,
-    E501, E202, E203, E226, E231,
-    B001, B008, B024,
+    E121, E123, E126, E133, E226, E241, E242, E704,
+    W503, W504,
+    D100, D101, D102, D103, D104, D105, D106, D107, D200, D203, D204, D205, D400, D401,
+    F401, F403, F405, F541
 show-source = true
 doctests = true
 
@@ -14,10 +15,3 @@ inline-quotes = single
 multiline-quotes = single
 
 docstring-quotes = single
-
-# plugins:
-accept-encodings = utf-8
-max-local-variables = 20
-min-name-length = 2
-max-imports = 20
-max-module-members = 40

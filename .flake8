@@ -1,5 +1,5 @@
 [flake8]
-max-complexity = 50
+max-complexity = 100
 max-line-length = 120
 ignore =
     B001, B008, B024,

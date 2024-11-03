@@ -27,7 +27,7 @@ jobs:
     - name: Run mypy
       run: mypy .
     - name: Upload flake8 report
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: flake8-report
         path: flake8-report

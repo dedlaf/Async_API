@@ -1,6 +1,6 @@
 [flake8]
-max-complexity = 100
-max-line-length = 120
+max-complexity = 50
+max-line-length = 200
 ignore =
     B001, B008, B024,
     C812, C815, C816, C819,
@@ -15,6 +15,7 @@ ignore =
 show-source = true
 doctests = false
 statistics = false
+format = default
 
 inline-quotes = single
 multiline-quotes = single

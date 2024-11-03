@@ -1,0 +1,19 @@
+[flake8]
+max-complexity = 6
+max-line-length = 80
+show-source = true
+doctests = true
+
+statistics = True
+
+inline-quotes = single
+multiline-quotes = single
+
+docstring-quotes = single
+
+# plugins:
+accept-encodings = utf-8
+max-local-variables = 10
+min-name-length = 3
+max-imports = 10
+max-module-members = 20

@@ -1,9 +1,12 @@
-from typing import Any
 from fastapi import Depends
+from motor.motor_asyncio import AsyncIOMotorDatabase
+from typing import Any, Dict, List
+
 from db.mongo import get_mongo_db
 
+
 class MongoCRUD:
-    def __init__(self, db):
+    def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
     async def insert_document(self, collection_name: str, data: dict) -> Any:

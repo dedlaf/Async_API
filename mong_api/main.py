@@ -4,7 +4,7 @@ from beanie import init_beanie
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from motor.motor_asyncio import AsyncIOMotorClient
-from settings import Settings
+from settings import settings
 
 from api.v1 import bookmarks, likes, reviews, users
 from models.like import Like
@@ -12,14 +12,11 @@ from models.review import Review
 from models.user import User
 from db import mongo
 
-settings = Settings()
-
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    client = AsyncIOMotorClient('localhost', 27019)
+    client = AsyncIOMotorClient(settings.mongodb_uri)
     mongo.mongodb = client['someDb']
-    print(client, mongo.mongodb)
     await init_beanie(database=client.db_name, document_models=[Like, Review, User])
     yield
     client.close()

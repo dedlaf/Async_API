@@ -150,7 +150,18 @@ services:
       - "9000:9000"  # TCP порт
     volumes:
       - clickhouse_data:/var/lib/clickhouse
-
+  mongo:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Qwertys1
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data/db
 volumes:
   postgres_data:
   postgres_auth_data:

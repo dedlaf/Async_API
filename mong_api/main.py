@@ -23,16 +23,16 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title=settings.project_name,
-    docs_url="/api/openapi",
-    openapi_url="/api/openapi.json",
+    docs_url="/mongo/openapi",
+    openapi_url="/mongo/openapi.json",
     default_response_class=ORJSONResponse,
     lifespan=lifespan,
 )
 
-app.include_router(users.router, prefix="/users", tags=["users"])
-app.include_router(likes.router, prefix="/likes", tags=["likes"])
-app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
-app.include_router(bookmarks.router, prefix="/bookmarks", tags=["bookmarks"])
+app.include_router(users.router, prefix="/mongo/users", tags=["users"])
+app.include_router(likes.router, prefix="/mongo/likes", tags=["likes"])
+app.include_router(reviews.router, prefix="/mongo/reviews", tags=["reviews"])
+app.include_router(bookmarks.router, prefix="/mongo/bookmarks", tags=["bookmarks"])
 
 if __name__ == "__main__":
     import uvicorn

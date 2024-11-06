@@ -10,6 +10,9 @@ class Settings(BaseSettings):
 
     mongodb_uri: str = "mongodb://localhost:27017"
 
+    sentry_sdk: str
+
+
 
 settings = Settings(_env_file=".env")
 

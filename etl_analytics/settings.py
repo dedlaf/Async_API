@@ -6,3 +6,7 @@ class Settings(BaseSettings):
     bootstrap_servers: str
     clickhouse_host: str = "clickhouse"
     batch_size: int = 1000
+    sentry_sdk: str
+
+settings = Settings()
+sentrysdk = settings.sentry_sdk

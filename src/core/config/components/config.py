@@ -19,6 +19,8 @@ class Settings(BaseSettings):
 
     enable_tracer: bool = False
 
+    sentry_sdk: str
+
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
 
@@ -31,6 +33,8 @@ REDIS_PORT = settings.REDIS_PORT
 
 ELASTIC_HOST = settings.ELASTIC_HOST
 ELASTIC_PORT = settings.ELASTIC_PORT
+
+SENTRY_SDK = settings.SENTRY_SDK
 
 enable_tracer = settings.enable_tracer
 

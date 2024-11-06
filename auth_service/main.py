@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 from async_fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi import FastAPI, Request
 from fastapi.responses import ORJSONResponse
@@ -20,6 +21,13 @@ from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 
 settings = Settings()
 
+sentry_sdk.init(
+    dsn=settings.sentry_sdk,
+    traces_sample_rate=1.0,
+    _experiments={
+        "continuous_profiling_auto_start": True,
+    },
+)
 
 def configure_tracer() -> None:
     trace.set_tracer_provider(TracerProvider())

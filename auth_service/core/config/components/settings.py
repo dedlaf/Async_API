@@ -30,6 +30,9 @@ class Settings(BaseSettings):
 
     enable_tracer: bool = False
 
+    sentry_sdk: str
+
+
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
 

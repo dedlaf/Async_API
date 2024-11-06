@@ -1,11 +1,20 @@
 from flask import Flask
 from flask import request
 from kafka import KafkaProducer
-from settings import kafka_host
+from settings import kafka_host, sentrysdk
 from schemas import KafkaData
 import logging
 import requests
+import sentry_sdk
 
+
+sentry_sdk.init(
+    dsn=sentrysdk,
+    traces_sample_rate=1.0,
+    _experiments={
+        "continuous_profiling_auto_start": True,
+    },
+)
 app = Flask(__name__)
 
 

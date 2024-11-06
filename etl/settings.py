@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     elastic_host: str
     chunk_size: int
 
+    sentry_sdk: str
+
+
 
 settings = Settings()
 
@@ -28,3 +31,5 @@ DSL = {
 FILE_PATH = settings.file_path
 ELASTIC_HOST = settings.elastic_host
 CHUNK_SIZE = settings.chunk_size
+
+sentrtsdk = settings.sentry_sdk

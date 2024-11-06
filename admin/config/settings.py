@@ -1,17 +1,28 @@
 import os
 
 from pathlib import Path
+
+import sentry_sdk
 from dotenv import load_dotenv
 
 from split_settings.tools import include
 
 load_dotenv()
 
+
 include(
     'components/database.py',
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_SDK'),
+    traces_sample_rate=1.0,
+    _experiments={
+        "continuous_profiling_auto_start": True,
+    },
+)
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='')
 

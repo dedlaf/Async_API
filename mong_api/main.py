@@ -11,20 +11,14 @@ from models.like import Like
 from models.review import Review
 from models.user import User
 from db import mongo
-import sentry_sdk
 import logging
-
+import sentry_sdk
 
 
 sentry_sdk.init(
-    dsn="https://904b0b9d8bd505d3ec6c756071286916@o4508246292234240.ingest.de.sentry.io/4508246339354704",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for tracing.
+    dsn=settings.sentry_sdk,
     traces_sample_rate=1.0,
     _experiments={
-        # Set continuous_profiling_auto_start to True
-        # to automatically start the profiler on when
-        # possible.
         "continuous_profiling_auto_start": True,
     },
 )
@@ -47,9 +41,6 @@ app = FastAPI(
 
 logger = logging.getLogger("api_logger")
 logger.info('Starting')
-@app.get("/sentry-debug")
-async def trigger_error():
-    logger.info('triggering error')
 
 
 app.include_router(users.router, prefix="/mongo/users", tags=["users"])

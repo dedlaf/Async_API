@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 
+import sentry_sdk
 from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI, Request, status
 from fastapi.responses import ORJSONResponse
@@ -15,6 +16,13 @@ from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
 
+sentry_sdk.init(
+    dsn=config.SENTRY_SDK,
+    traces_sample_rate=1.0,
+    _experiments={
+        "continuous_profiling_auto_start": True,
+    },
+)
 
 def configure_tracer() -> None:
     trace.set_tracer_provider(TracerProvider())

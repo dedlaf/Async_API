@@ -2,10 +2,16 @@ import argparse
 import logging
 import time
 
+import sentry_sdk
+
 from etl_process_handler import ETLProcessHandler
-from settings import FILE_PATH
+from settings import FILE_PATH, sentrtsdk
 from state import JsonFileStorage, State
 
+sentry_sdk.init(
+    dsn=sentrtsdk,
+    traces_sample_rate=1.0,
+)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -15,6 +21,8 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
+    sentry_sdk.profiler.start_profiler()
+
     file_storage = JsonFileStorage(FILE_PATH)
     state = State(file_storage)
 

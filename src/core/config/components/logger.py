@@ -1,3 +1,5 @@
+from src.core.config.components.config import settings
+
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 LOG_DEFAULT_HANDLERS = [
     "console",
@@ -22,6 +24,9 @@ LOGGING = {
             "()": "uvicorn.logging.AccessFormatter",
             "fmt": "%(levelprefix)s %(client_addr)s - '%(request_line)s' %(status_code)s",
         },
+        'movies_formatter': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        },
     },
     "handlers": {
         "console": {
@@ -39,6 +44,16 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": "ext://sys.stdout",
         },
+        'logstash': {
+            'class': 'logstash.TCPLogstashHandler',
+            'host': settings.logstash_host,
+            'port': 5044,
+            'version': 1,
+            'message_type': 'movies-app',
+            'fqdn': False,
+            'tags': ['movies-app'],
+            'formatter': 'movies_formatter',
+        },
     },
     "loggers": {
         "": {
@@ -52,6 +67,11 @@ LOGGING = {
             "handlers": ["access"],
             "level": "INFO",
             "propagate": False,
+        },
+        'movies_logger': {
+            'handlers': ['logstash'],
+            'level': 'INFO',
+            'propagate': False,
         },
     },
     "root": {

@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     enable_tracer: bool = False
 
     sentry_sdk: str
+    logstash_host: str
 
 
 

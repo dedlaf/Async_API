@@ -45,3 +45,10 @@ class RoleRevocationRequestSchema(BaseModel):
 
 class UserLoginHistoryResponseSchema(BaseModel):
     date: list[datetime]
+
+
+class GetUserInfoResponseSchema(BaseModel):
+    id: uuid.UUID
+    username: str
+    role_id: uuid.UUID
+    email: str

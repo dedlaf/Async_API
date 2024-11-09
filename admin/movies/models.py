@@ -1,11 +1,13 @@
+import json
 import uuid
 
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
-
+from django.core.exceptions import ValidationError
 from .mixins import TimeStampedMixin, UUIDMixin
 
 
@@ -130,3 +132,53 @@ class PersonFilmwork(UUIDMixin):
     class Meta:
         managed = False
         db_table = "content\".\"person_film_work"
+
+
+class Template(UUIDMixin, TimeStampedMixin):
+    template = models.FileField(_('HTML File'), upload_to='templates/')
+    content = models.ForeignKey('Content', on_delete=models.CASCADE, related_name='templates')
+
+    class Meta:
+        db_table = "notify\".\"template"
+        verbose_name = _('template')
+        verbose_name_plural = _('templates')
+
+    def __str__(self):
+        return f'Template {self.id}'
+
+
+class Content(UUIDMixin, TimeStampedMixin):
+    def validate_json_format(value):
+        try:
+            # Если значение уже является словарем, преобразуем его в строку JSON
+            if isinstance(value, dict):
+                value = json.dumps(value)
+            json.loads(value)
+        except ValueError as e:
+            raise ValidationError(f'Invalid JSON: {e}')
+
+    words = models.JSONField(_('Word List'), validators=[validate_json_format])
+
+    class Meta:
+        db_table = "notify\".\"content"
+        verbose_name = _('content')
+        verbose_name_plural = _('contents')
+
+    def __str__(self):
+        return f'Content {self.id}'
+
+class Event(UUIDMixin, TimeStampedMixin):
+    template = models.ForeignKey('Template', on_delete=models.CASCADE, related_name='events')
+    content = models.ForeignKey('Content', on_delete=models.CASCADE, related_name='events')
+    users = ArrayField(models.UUIDField(), verbose_name=_('Users List'))
+    timestamp = models.DateTimeField(_('Timestamp (UTC)'))
+
+    class Meta:
+        db_table = "notify\".\"event"
+        verbose_name = _('event')
+        verbose_name_plural = _('events')
+
+    def __str__(self):
+        return f'Event {self.id}'
+
+

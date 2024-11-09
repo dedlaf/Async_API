@@ -13,6 +13,7 @@ from schemas.user import (
     UserLoginHistoryResponseSchema,
     UserResponseSchema,
     UsersRoleRequestSchema,
+    GetUserInfoResponseSchema,
 )
 from services.login_history_service import (
     LoginHistoryService,
@@ -158,6 +159,18 @@ async def delete_user(
     user_service: UserService = Depends(get_user_service),
 ):
     user = user_service.delete_user(user_id)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+
+    return user
+
+
+@router.get('/{user_id}', response_model=GetUserInfoResponseSchema)
+async def get_user(user_id: uuid.UUID, user_service: UserService = Depends(get_user_service)):
+    user = user_service.get_user(user_id)
 
     if not user:
         raise HTTPException(

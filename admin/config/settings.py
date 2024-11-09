@@ -26,7 +26,7 @@ sentry_sdk.init(
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='')
 
-DEBUG = os.environ.get('DEBUG', False) == 'True'
+DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', default='').split(',')
 
@@ -101,11 +101,11 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = "/static/"
+STATIC_ROOT = "/static"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/media'
 
 LOCALE_PATHS = ['movies/locale']

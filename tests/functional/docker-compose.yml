@@ -1,74 +1,47 @@
 services:
-  web:
-    build:
-      context: ../../src
-    image: fastapi-image
-    ports:
-      - 8000:8000
-  auth:
-    build:
-      context: ../../auth_service
-    expose:
-      - 8070
+
   nginx:
     image: nginx:latest
     volumes:
-      - ../../nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ../../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/mongo_tests/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /static:/static
+      - /media:/media
+
     ports:
       - "80:80"
     depends_on:
-      - web
-  db:
-    image: postgres:latest
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-      - ../../sql_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-    env_file:
-      - ../../.env
-    expose:
-      - 5432
-  db_auth:
-    image: postgres:latest
-    volumes:
-      - postgres_auth_data:/var/lib/postgresql/data/
-      - ../../sql_scripts/init_auth.sql:/docker-entrypoint-initdb.d/init_auth.sql
-    environment:
-      - POSTGRES_DB=user_auth_database
-      - POSTGRES_USER=app
-      - POSTGRES_PASSWORD=123qwe
+      - mongo-api
+
+  mongodb:
+    image: mongo:latest
     ports:
-      - 5432:5432
-  elasticsearch:
-    image: elasticsearch:8.8.0
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
+      - "27017:27017"
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Qwertys1
+    volumes:
+      - type: bind
+        source: ../../data
+        target: /data/db
+
+  mongo-api:
+    build: ../../mong_api
     ports:
-      - 9200:9200
-  redis:
-    image: redis:alpine
-    expose:
-      - 6379:6379
+      - "8050:8050"
+    depends_on:
+      - mongodb
+
   tests:
     build:
       context: .
     env_file:
-      - ./.env
+      - .env
     volumes:
       - .:/app
     depends_on:
-      - redis
-      - auth
-      - db_auth
-      - elasticsearch
+      - mongodb
+      - mongo-api
+      - nginx
     ports:
       - 7878:7878
-
-
-volumes:
-  postgres_data:
-  postgres_auth_data:
-  esdata:

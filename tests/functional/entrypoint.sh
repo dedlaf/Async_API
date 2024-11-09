@@ -1,9 +1,3 @@
 #!/bin/sh
 
-# Запуск main.py
-python utils/main.py
-
-
-#pytest ./src/tests_films_api
-pytest ./src/tests_api_registr
-
+pytest ./src/tests_mongo_crud_api

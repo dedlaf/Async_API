@@ -26,7 +26,7 @@ def fetch_and_parse_events():
         logging.info(f"Error fetching events: {e}")
 
 
-schedule.every(3).seconds.do(fetch_and_parse_events)
+schedule.every(180).seconds.do(fetch_and_parse_events)
 
 logging.info("Starting scheduler...")
 while True:

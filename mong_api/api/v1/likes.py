@@ -22,7 +22,6 @@ async def create_like(
         like = await like_service.add_rating(
             like_input.movie_id, like_input.user_id, like_input.rating
         )
-        print(like)
         return LikeInDB(id=str(like["_id"]), **like)
     except HTTPException as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail)

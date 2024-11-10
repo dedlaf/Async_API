@@ -12,6 +12,5 @@ def get_es_ready():
     es_client = Elasticsearch(hosts=os.getenv("ES_HOST"))
     while True:
         if es_client.ping():
-            print("Elasticsearch ready")
             break
         time.sleep(1)

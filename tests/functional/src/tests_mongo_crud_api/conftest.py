@@ -1,5 +1,4 @@
 import asyncio
-from pprint import pprint
 
 import aiohttp
 import pytest_asyncio
@@ -31,7 +30,6 @@ async def http_session():
 def http_session_delete(http_session: aiohttp.ClientSession) -> callable:
     async def inner(url: str, data: dict = None) -> list:
         async with http_session.delete(url, json=data) as response:
-            pprint(response)
             return [
                 await response.json(),
                 response.headers,
@@ -46,7 +44,6 @@ def http_session_delete(http_session: aiohttp.ClientSession) -> callable:
 def http_session_put(http_session: aiohttp.ClientSession) -> callable:
     async def inner(url: str, data: dict = None) -> list:
         async with http_session.put(url, json=data) as response:
-            pprint(response)
             return [
                 await response.json(),
                 response.headers,
@@ -61,7 +58,6 @@ def http_session_put(http_session: aiohttp.ClientSession) -> callable:
 def http_session_get(http_session: aiohttp.ClientSession) -> callable:
     async def inner(url: str, query_data: dict = None) -> list:
         async with http_session.get(url, params=query_data) as response:
-            pprint(response)
             return [
                 await response.json(),
                 response.headers,
@@ -76,7 +72,6 @@ def http_session_get(http_session: aiohttp.ClientSession) -> callable:
 def http_session_post(http_session: aiohttp.ClientSession) -> callable:
     async def inner(url: str, query_data: dict = None, json: dict = None) -> list:
         async with http_session.post(url, params=query_data, json=json) as response:
-            pprint(response)
             return [
                 await response.json(),
                 response.headers,

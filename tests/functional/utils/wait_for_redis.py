@@ -8,11 +8,9 @@ load_dotenv()
 
 
 async def get_redis_ready():
-    print("Starting elasticsearch")
     redis = Redis(host=os.getenv("REDIS_HOST"), port=6379)
 
     while True:
         if await redis.ping():
-            print("Redis ready")
             break
         await asyncio.sleep(1)

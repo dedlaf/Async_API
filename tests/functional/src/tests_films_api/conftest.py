@@ -1,5 +1,4 @@
 import asyncio
-from pprint import pprint
 
 import aiohttp
 import pytest_asyncio

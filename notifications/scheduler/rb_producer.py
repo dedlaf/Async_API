@@ -19,7 +19,6 @@ class Producer:
                 delivery_mode=2,
             ),
         )
-        print(f" [x] Sent {message}")
 
     def close(self):
         self.__connection.close()

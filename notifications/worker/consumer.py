@@ -38,12 +38,12 @@ class Consumer:
         async with message.process():
             data = json.loads(message.body.decode())
             content = data["content"]
-            template = await self.get_template(path=data["path_to_template"])
+            template = data["template"]
             body = email_sender.render_template(template, content)
             users = data["users"].split(",")
-            for user in users:
-                ...
-            #email_sender.send_email(to_email="dedlaf.pl@mail.ru", subject="Welcome", body=body)
+            emails = [await self.get_email(user) for user in users]
+            for email in emails:
+                email_sender.send_email(to_email=email, subject="Welcome", body=body)
 
 
     async def get_short(self, message):

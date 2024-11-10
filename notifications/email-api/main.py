@@ -17,7 +17,7 @@ async def lifespan(_: FastAPI):
     redis.redis = Redis(host='localhost', port=6379)
     print(redis.redis)
     rabbitmq.rabbitmq = await aio_pika.connect_robust(
-        host='rabbitmq',
+        host='localhost',
         login='dedlaf',
         password='123qwe',
         port=5672

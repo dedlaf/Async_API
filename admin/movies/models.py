@@ -144,7 +144,7 @@ class Template(UUIDMixin, TimeStampedMixin):
         verbose_name_plural = _('templates')
 
     def __str__(self):
-        return f'Template {self.id}'
+        return f'Template {self.template_name}'
 
 
 class Content(UUIDMixin, TimeStampedMixin):

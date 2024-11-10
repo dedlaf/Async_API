@@ -47,7 +47,7 @@ class Fetcher:
         final_list = []
         for event_id, template_id, content_id, users, _ in self._fetch_events():
             final_dict = {
-                'path_to_template': self._fetch_template(template_id),
+                'template': self._fetch_template(template_id),
                 'content': self._fetch_content(content_id),
                 'users': users[1:-1]
             }

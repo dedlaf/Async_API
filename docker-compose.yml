@@ -223,7 +223,13 @@ services:
       timeout: 10s
       retries: 5
 
-
+  email:
+    build:
+      context: ./notifications/email-api
+    expose:
+      - 8075
+    ports:
+      - "8075:8075"
 
 volumes:
   postgres_data:

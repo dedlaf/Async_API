@@ -135,8 +135,8 @@ class PersonFilmwork(UUIDMixin):
 
 
 class Template(UUIDMixin, TimeStampedMixin):
-    template = models.FileField(_('HTML File'), upload_to='templates/')
-    content = models.ForeignKey('Content', on_delete=models.CASCADE, related_name='templates')
+    template_name = models.CharField(_('template name'), max_length=255)
+    template = models.TextField(verbose_name=_('template'))
 
     class Meta:
         db_table = "notify\".\"template"
@@ -180,5 +180,3 @@ class Event(UUIDMixin, TimeStampedMixin):
 
     def __str__(self):
         return f'Event {self.id}'
-
-

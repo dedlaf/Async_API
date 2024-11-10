@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from services.genre import GenreService, get_genre_service
 
 from .settings import GenreResponse
-from core.config.components.role_decorator import verify_role
 
 router = APIRouter()
 
@@ -26,7 +25,6 @@ async def genre_details(
 
 
 @router.get("/", response_model=List[GenreResponse])
-@verify_role
 async def genre_list(
     request: Request, genre_service: GenreService = Depends(get_genre_service)
 ) -> List[GenreResponse]:

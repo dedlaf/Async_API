@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     enable_tracer: bool = False
 
-    sentry_sdk: str
+    sentry_sdk: str = "https://628052978c0156d990a1ff4368f23770@o4508251116797952.ingest.de.sentry.io/4508251121320016"
 
 
 settings = Settings(_env_file=".env", _env_file_encoding="utf-8")
@@ -34,7 +34,7 @@ REDIS_PORT = settings.REDIS_PORT
 ELASTIC_HOST = settings.ELASTIC_HOST
 ELASTIC_PORT = settings.ELASTIC_PORT
 
-SENTRY_SDK = settings.SENTRY_SDK
+SENTRY_SDK = settings.sentry_sdk
 
 enable_tracer = settings.enable_tracer
 

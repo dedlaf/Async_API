@@ -7,6 +7,7 @@ from short_url import URLShortener
 from redis.asyncio import Redis
 from email_sender import email_sender
 
+
 class Consumer:
     def __init__(self, rabbitmq: aio_pika.RobustConnection):
         self.short_url = URLShortener(redis_client=Redis(host='localhost', port=6379, db=0))

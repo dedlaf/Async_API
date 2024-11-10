@@ -1,2 +1,3 @@
 CREATE SCHEMA IF NOT EXISTS content;
+CREATE SCHEMA IF NOT EXISTS notify;
 SET search_path TO content;

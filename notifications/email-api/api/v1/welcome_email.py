@@ -3,14 +3,15 @@ import json
 import uuid
 from datetime import datetime
 
-from db.postgres import get_db_connection
-from db.redis import get_redis
 from fastapi import APIRouter, Depends, HTTPException
 from redis.asyncio import Redis
+from starlette.responses import RedirectResponse
+
+from db.postgres import get_db_connection
+from db.redis import get_redis
 from schemas.shemas import (ContentCreate, ContentUpdate, EventCreate,
                             TemplateUpdate)
 from services.producer_service import Producer, get_producer
-from starlette.responses import RedirectResponse
 
 router = APIRouter()
 

@@ -7,5 +7,5 @@ def get_db_connection():
         port="5432",
         user="app",
         password="123qwe",
-        database="movies_database"
+        database="movies_database",
     )

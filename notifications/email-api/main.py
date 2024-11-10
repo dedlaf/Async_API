@@ -2,26 +2,26 @@ import logging
 from contextlib import asynccontextmanager
 
 import aio_pika
-from api.v1 import welcome_email, content_crud, template_crud, event_crud
-from core.settings import settings
-from db import rabbitmq, redis
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from redis.asyncio import Redis
+
+from api.v1 import content_crud, event_crud, template_crud, welcome_email
+from core.settings import settings
+from db import rabbitmq, redis
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     redis.redis = Redis(host="localhost", port=6379)
-    print(redis.redis)
     rabbitmq.rabbitmq = await aio_pika.connect_robust(
-        host="rabbitmq", login="dedlaf", password="123qwe", port=5672
+        host=settings.rabbitmq_host,
+        login=settings.rabbitmq_login,
+        password=settings.rabbitmq_password,
+        port=settings.rabbitmq_port,
     )
     channel = await rabbitmq.rabbitmq.channel()
     queue = await channel.declare_queue("welcome_email", durable=True)
-    print(type(queue))
-    print(type(channel))
-    print(type(rabbitmq.rabbitmq))
 
     yield
     await rabbitmq.rabbitmq.close()

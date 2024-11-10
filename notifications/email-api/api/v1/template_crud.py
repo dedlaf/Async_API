@@ -1,8 +1,9 @@
 import http
 import uuid
 
-from db.postgres import get_db_connection
 from fastapi import APIRouter, Depends, HTTPException
+
+from db.postgres import get_db_connection
 from schemas.shemas import TemplateUpdate
 
 router = APIRouter()

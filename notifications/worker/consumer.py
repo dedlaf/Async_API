@@ -1,16 +1,23 @@
 import json
+import logging
 from datetime import datetime
 
-import requests
 import aio_pika
-from short_url import URLShortener
-from redis.asyncio import Redis
+import requests
 from email_sender import email_sender
+from redis.asyncio import Redis
+from short_url import URLShortener
+
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
 
 
 class Consumer:
     def __init__(self, rabbitmq: aio_pika.RobustConnection):
-        self.short_url = URLShortener(redis_client=Redis(host='localhost', port=6379, db=0))
+        self.short_url = URLShortener(
+            redis_client=Redis(host="localhost", port=6379, db=0)
+        )
         self.__connection = rabbitmq
 
     async def get_messages(self, queue_name: str, queue_name1: str):
@@ -20,19 +27,23 @@ class Consumer:
         queue2 = await channel.declare_queue(queue_name1, durable=True)
         await queue1.consume(self._welcome_message)
         await queue2.consume(self._delayed_notify)
-        print("Started consuming")
+        logging.info("Started consuming")
 
     async def _welcome_message(self, message: aio_pika.abc.AbstractIncomingMessage):
         async with message.process():
-            body = message.body.decode()[0]
-            short_url = await self.get_short(body)
+            body = message.body.decode()
+            short_url = await self.get_short(body[0])
             context = {
-                'redirect_uri': short_url,
-                'company_name': 'Online-cinema',
-                'year': datetime.now().year
+                "redirect_uri": short_url,
+                "company_name": "Online-cinema",
+                "year": datetime.now().year,
             }
-            body = email_sender.render_template_from_file('welcome_email.html', context)
-            email_sender.send_email(to_email="dedlaf.pl@mail.ru", subject="Welcome", body=body)
+            user_id = body["user_id"]
+            email = self.get_email(user_id)
+            body = email_sender.render_template_from_file("welcome_email.html", context)
+            email_sender.send_email(
+                to_email=email, subject="Welcome", body=body
+            )
 
     async def _delayed_notify(self, message: aio_pika.abc.AbstractIncomingMessage):
         async with message.process():
@@ -45,17 +56,16 @@ class Consumer:
             for email in emails:
                 email_sender.send_email(to_email=email, subject="Welcome", body=body)
 
-
     async def get_short(self, message):
         return await self.short_url.encode_url(long_url=message)
 
     @staticmethod
-    async def get_template(path='templates/welcome_email.html'):
-        template = requests.get("http://localhost/media/"+path)
+    async def get_template(path="templates/welcome_email.html"):
+        template = requests.get("http://localhost/media/" + path)
         return template.content.decode()
 
     @staticmethod
     async def get_email(user_id):
-        response = requests.get(f"http://localhost/auth/user/{user_id}")
+        response = requests.get(f"http://auth:8070/auth/user/{user_id}")
         email = json.loads(response.content.decode())["email"]
         return email

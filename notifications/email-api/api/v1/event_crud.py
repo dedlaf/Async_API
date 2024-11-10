@@ -1,13 +1,11 @@
 import uuid
 
-from db.postgres import get_db_connection
 from fastapi import APIRouter, Depends, HTTPException
+
+from db.postgres import get_db_connection
 from schemas.shemas import EventCreate
 
 router = APIRouter()
-
-
-# Модель данных для создания события
 
 
 @router.post("/")
@@ -17,7 +15,6 @@ async def create_event(event_data: EventCreate, postgres=Depends(get_db_connecti
         event_id = str(uuid.uuid4())
         insert_query = "INSERT INTO notify.event (id, template_id, content_id, users, timestamp, created, modified) VALUES (%s, %s, %s, %s::uuid[], %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)"
 
-        # Выполнение запроса
         cursor.execute(
             insert_query,
             (
@@ -29,7 +26,6 @@ async def create_event(event_data: EventCreate, postgres=Depends(get_db_connecti
             ),
         )
 
-        # Фиксация изменений
         postgres.commit()
         cursor.close()
         return {"message": "Event created", "event_id": event_id}
@@ -67,7 +63,6 @@ async def get_event(event_id: str, postgres=Depends(get_db_connection)):
         )
 
     finally:
-        # Закрытие курсора
         cursor.close()
 
 

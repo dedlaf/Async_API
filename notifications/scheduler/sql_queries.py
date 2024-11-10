@@ -3,5 +3,3 @@ class SQLQueries:
     GET_TEMPLATE = "SELECT template FROM notify.template WHERE template.id = %s"
     GET_CONTENT = "SELECT words::json FROM notify.content WHERE content.id = %s"
     DELETE_EVENT = "DELETE FROM notify.event WHERE id = %s"
-
-

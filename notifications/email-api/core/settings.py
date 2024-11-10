@@ -9,8 +9,9 @@ class Settings(BaseSettings):
     project_name: str = "email-api"
 
     rabbitmq_host: str = "rabbitmq"
-    rabbitmq_login: str = "dedlaf"
-    rabbitmq_password: str = "123qwe"
+    rabbitmq_port: int = 5672
+    rabbitmq_login: str
+    rabbitmq_password: str
 
 
 settings = Settings(_env_file=".env")

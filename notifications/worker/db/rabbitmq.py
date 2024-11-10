@@ -1,4 +1,5 @@
 from typing import Optional
+
 from aio_pika.robust_connection import RobustConnection
 
 rabbitmq: Optional[RobustConnection] = None

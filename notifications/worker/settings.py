@@ -1,20 +1,20 @@
 from pydantic_settings import BaseSettings
 
 
-class DatabaseConfig(BaseSettings):
-    db_host: str
-    db_port: int
-    db_username: str
-    db_password: str
-    db_database: str
-
+class RbmqConfig(BaseSettings):
     rabbitmq_host: str
     rabbitmq_port: int
     rabbitmq_default_user: str
     rabbitmq_default_pass: str
 
+    smtp_server: str = "smtp.mail.ru"
+    smtp_port: int = 587
+    smtp_user: str
+    smtp_password: str
+    from_email: str
+
     class Config:
         env_file = ".env"
 
 
-config = DatabaseConfig()
+settings = RbmqConfig()

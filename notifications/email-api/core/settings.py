@@ -13,6 +13,11 @@ class Settings(BaseSettings):
     rabbitmq_login: str
     rabbitmq_password: str
 
+    db_host: str
+    db_port: int
+    db_username: str
+    db_password: str
+    db_database: str
 
 settings = Settings(_env_file=".env")
 

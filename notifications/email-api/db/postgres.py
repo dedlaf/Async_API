@@ -1,11 +1,11 @@
 import psycopg2
-
+from core.settings import settings
 
 def get_db_connection():
     return psycopg2.connect(
-        host="db",
-        port="5432",
-        user="app",
-        password="123qwe",
-        database="movies_database",
+        host=settings.db_host,
+        port=settings.db_port,
+        user=settings.db_username,
+        password=settings.db_password,
+        database=settings.db_database,
     )

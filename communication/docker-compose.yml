@@ -1,0 +1,18 @@
+
+services:
+  chat:
+    build: ./chat
+    ports:
+      - "8085:8085"
+    expose:
+      - 8085
+    networks:
+      - chatnet
+  spammer:
+    build: ./spammer
+    networks:
+      - chatnet
+
+networks:
+  chatnet:
+    driver: bridge

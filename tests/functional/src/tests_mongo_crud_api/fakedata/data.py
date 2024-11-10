@@ -89,14 +89,12 @@ class DataSeeder:
         self._user_collection.insert_many(data["User"])
         self._review_collection.insert_many(data["Review"])
         self._like_collection.insert_many(data["Like"])
-        print("Inserted")
         return data["User"][0], data["Review"][0], data["Like"][0]
 
     def clear_all_collections(self):
         self._db["User"].delete_many({})
         self._db["Review"].delete_many({})
         self._db["Like"].delete_many({})
-        print("Cleared")
 
 
 if __name__ == "__main__":

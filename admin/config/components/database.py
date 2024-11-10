@@ -13,5 +13,3 @@ DATABASES = {
         }
     }
 }
-
-print(DATABASES)

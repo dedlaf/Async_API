@@ -21,7 +21,6 @@ class Producer:
         await channel.default_exchange.publish(
             message=aio_pika.Message(body=rabbitmq_body), routing_key=queue.name
         )
-        print(f" [x] Sent {message}")
 
 
 def get_producer(rabbitmq=Depends(get_rabbitmq)):

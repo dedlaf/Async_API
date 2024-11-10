@@ -11,7 +11,6 @@ from pydantic import BaseModel
 
 User = get_user_model()
 
-
 class Roles(StrEnum):
     ADMIN = auto()
     SUBSCRIBER = auto()
@@ -31,10 +30,14 @@ class CustomBackend(BaseBackend):
         payload_role = {
             'id': user_data['role_id'],
         }
+        print('now1', response.json(), payload_role)
         response_role = requests.get(settings.AUTH_API_ROLE_URL+"/"+payload_role.get('id'),)
+        print('now2', response_role.json())
         user_role_data = response_role.json()
         try:
+            print('start')
             user, created = User.objects.get_or_create(email=user_data['email'], )
+            print('now3', user, created)
             user.email = user_data.get('email')
             user.first_name = user_data.get('first_name', "")
             user.last_name = user_data.get('last_name', "")

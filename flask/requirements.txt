@@ -6,3 +6,4 @@ pydantic==2.8.2
 pydantic-settings==2.3.4
 requests==2.32.3
 sentry-sdk==2.18.0
+python-logstash==0.4.6

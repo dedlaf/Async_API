@@ -35,7 +35,7 @@ REDIS_PORT = settings.REDIS_PORT
 ELASTIC_HOST = settings.ELASTIC_HOST
 ELASTIC_PORT = settings.ELASTIC_PORT
 
-SENTRY_SDK = settings.SENTRY_SDK
+SENTRY_SDK = settings.sentry_sdk
 
 enable_tracer = settings.enable_tracer
 

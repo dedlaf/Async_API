@@ -118,6 +118,44 @@ CREATE TABLE public.alembic_version (
 
 ALTER TABLE public.alembic_version OWNER TO app;
 
+
+CREATE SCHEMA notify;
+
+ALTER SCHEMA notify OWNER TO app;
+
+SET search_path TO notify;
+
+CREATE TABLE notify.template(
+    id UUID PRIMARY KEY,
+    template_name VARCHAR(255) NOT NULL,
+    template text NOT NULL,
+    created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    modified TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE notify.template OWNER TO app;
+
+CREATE TABLE notify.content (
+    id UUID PRIMARY KEY,
+    words JSONB NOT NULL,
+    created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    modified TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE notify.content OWNER TO app;
+
+CREATE TABLE notify.event (
+    id UUID PRIMARY KEY,
+    template_id UUID,
+    content_id UUID,
+    users UUID[] NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE,
+    created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    modified TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE notify.event OWNER TO app;
+
 --
 -- Data for Name: film_work; Type: TABLE DATA; Schema: content; Owner: app
 --

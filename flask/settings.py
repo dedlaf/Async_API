@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     kafka_host: str
     sentry_sdk: str
-    logstash_host: str = "172.18.0.20"
+    logstash_host: str
 
 
 settings = Settings()

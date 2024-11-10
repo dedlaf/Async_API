@@ -12,6 +12,7 @@ load_dotenv()
 
 include(
     'components/database.py',
+    'components/logging.py',
 )
 
 BASE_DIR = Path(__file__).resolve().parent.parent

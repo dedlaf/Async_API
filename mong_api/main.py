@@ -39,10 +39,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-logger = logging.getLogger("api_logger")
-logger.info('Starting')
-
-
 app.include_router(users.router, prefix="/mongo/users", tags=["users"])
 app.include_router(likes.router, prefix="/mongo/likes", tags=["likes"])
 app.include_router(reviews.router, prefix="/mongo/reviews", tags=["reviews"])

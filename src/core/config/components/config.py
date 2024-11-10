@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     ELASTIC_HOST: str = "elasticsearch"
     ELASTIC_PORT: int = 9200
+    logstash_host: str
 
     enable_tracer: bool = False
 

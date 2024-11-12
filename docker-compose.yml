@@ -204,11 +204,19 @@ services:
       - .logstash.conf:/usr/share/logstash/config/logstash.conf:ro
     command: logstash -f /usr/share/logstash/config/logstash.conf
 
-  sch:
+  scheduler:
     build:
       context: ./notifications/scheduler
     expose:
       - 8006
+
+  worker:
+    build:
+      context: ./notifications/worker
+    depends_on:
+      - rabbitmq
+    env_file:
+      - ./notifications/worker/.env
 
   rabbitmq:
     image: 'rabbitmq:3.9.16-management-alpine'
@@ -230,6 +238,16 @@ services:
       - 8075
     ports:
       - "8075:8075"
+    depends_on:
+      - rabbitmq
+      - redis
+  mailhog:
+    image: mailhog/mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - 1025:1025
+      - 8025:8025
 
 volumes:
   postgres_data:

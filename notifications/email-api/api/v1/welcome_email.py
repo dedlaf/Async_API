@@ -1,17 +1,11 @@
-import http
 import json
-import uuid
-from datetime import datetime
+from http import HTTPStatus
 
+from db.redis import get_redis
 from fastapi import APIRouter, Depends, HTTPException
 from redis.asyncio import Redis
-from starlette.responses import RedirectResponse
-
-from db.postgres import get_db_connection
-from db.redis import get_redis
-from schemas.shemas import (ContentCreate, ContentUpdate, EventCreate,
-                            TemplateUpdate)
 from services.producer_service import Producer, get_producer
+from starlette.responses import RedirectResponse
 
 router = APIRouter()
 
@@ -34,8 +28,7 @@ async def redirect_to_long_url(short_id: str, redis: Redis = Depends(get_redis))
         long_url = json.loads(long_url.decode())
         redirect_url = long_url["redirect_uri"]
         return RedirectResponse(url=redirect_url, status_code=301)
-    else:
-        return None
+    return HTTPException(HTTPStatus.NOT_FOUND)
 
 
 @router.get("/welcome/")

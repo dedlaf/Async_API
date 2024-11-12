@@ -19,6 +19,10 @@ class Settings(BaseSettings):
     db_password: str
     db_database: str
 
+    redis_host: str
+    redis_port: int
+
+
 settings = Settings(_env_file=".env")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

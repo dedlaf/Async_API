@@ -39,7 +39,7 @@ async def update_template(
     template_service: TemplateService = Depends(get_template_service),
 ):
     result = template_service.update_template(template_id, template_data)
-    if result is None:
+    if not result:
         raise HTTPException(status_code=404, detail="Template not found")
     return {"message": f"Template with ID {template_id} updated"}
 
@@ -49,6 +49,6 @@ async def delete_template(
     template_id: str, template_service: TemplateService = Depends(get_template_service)
 ):
     result = template_service.delete_template(template_id)
-    if result is None:
+    if not result:
         raise HTTPException(status_code=404, detail="Template not found")
     return {"message": f"Template with ID {template_id} deleted"}

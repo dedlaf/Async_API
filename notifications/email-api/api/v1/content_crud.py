@@ -38,7 +38,7 @@ async def update_content(
     content_service: ContentService = Depends(get_content_service),
 ):
     result = content_service.update_content(content_id, content_data)
-    if result is None:
+    if not result:
         raise HTTPException(status_code=404, detail="Content not found")
     return {"message": f"Content with ID {content_id} updated"}
 
@@ -48,6 +48,6 @@ async def delete_content(
     content_id: str, content_service: ContentService = Depends(get_content_service)
 ):
     result = content_service.delete_content(content_id)
-    if result is None:
+    if not result:
         raise HTTPException(status_code=404, detail="Content not found")
     return {"message": f"Content with ID {content_id} deleted"}

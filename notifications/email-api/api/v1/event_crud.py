@@ -30,7 +30,7 @@ async def update_event(
     event_service: EventService = Depends(get_event_service),
 ):
     result = event_service.update_event(event_id, event_data)
-    if result is None:
+    if not result:
         raise HTTPException(status_code=404, detail="Event not found")
     return {"message": f"Event with ID {event_id} updated"}
 
@@ -40,7 +40,7 @@ async def delete_event(
     event_id: str, event_service: EventService = Depends(get_event_service)
 ):
     result = event_service.delete_event(event_id)
-    if result is None:
+    if not result:
         raise HTTPException(status_code=404, detail="Event not found")
     return {"message": f"Event with ID {event_id} deleted"}
 
